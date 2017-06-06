@@ -1,0 +1,20 @@
+{{> header}}
+
+	<div id="playerdiv">
+		<div class="player">
+				<button id="playPauseStop" onclick="playPauseStop()"></button>
+				<button id="getNextSong" value="stop" onclick="playPauseStop(true)"></button>
+				<button id="backward" value="stop" onclick="player.getNextSong(-1);"></button>
+				<button id="forward" value="stop" onclick="player.getNextSong(+1);"></button>
+				<button id="scheme" onclick="changeScheme();"></button>
+				<button id="info" onclick="getInfo();"></button>
+		</div>
+	</div>
+	<div id="info-dialog" title="Starry Night Synthesizer" style="display:none;">
+		<p><span class="ui-icon ui-icon-play"></span> Now playing: <span id="nowplaying"></span><br>
+		<span class="ui-icon ui-icon-heart"></span> <a href="https://github.com/wustep/midi">See on GitHub</a></p>
+	</div>
+	<!-- main file -->
+	<script src="/js/player.js" type="text/javascript"></script>
+
+{{> footer}}

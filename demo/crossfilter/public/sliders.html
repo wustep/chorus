@@ -1,0 +1,84 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Crossfilter Socket Demo</title>
+	<link href="main.css" rel="stylesheet">
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<link rel="stylesheet" href="main.css">
+</head>
+<body>
+
+	<p>
+	  <label for="amount-0">Time of Day:</label>
+	  <input type="text" id="amount-0" class="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+	</p>
+	 
+	<div class="slider" id="slider-0"></div>
+	
+	<p>
+	  <label for="amount-1">Arrival Delay (min.):</label>
+	  <input type="text" id="amount-1" class="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+	</p>
+	 
+	<div class="slider" id="slider-1"></div>
+	
+	<p>
+	  <label for="amount-2">Distance (mi):</label>
+	  <input type="text" id="amount-2" class="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+	</p>
+	 
+	<div class="slider" id="slider-2"></div>
+	
+	<p>
+	  <label for="amount-3">Date</label>
+	  <input type="text" id="amount-3" class="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+	</p>
+	 
+	<div class="slider" id="slider-3"></div>
+
+	</div>
+	<script src="lib/socket.io.2.0.1.min.js"></script>
+	<script src="lib/jquery.3.2.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script src="lib/crossfilter.v1.min.js"></script>
+	<script src="lib/d3.v3.min.js"></script>
+	<script src="client.js"></script>
+	<script>
+	$(function() {
+		var socket = io();
+		$( ".slider" ).slider({
+			range: true,
+			slide: function( event, ui ) {
+				var id = $(this).attr("id").substring(7,8);
+				$("#amount-" + id).val(ui.values[0] + " - " + ui.values[1]);
+
+			},
+			stop: function(event, ui) {
+				var id = $(this).attr("id").substring(7,8);
+				socket.emit("command", { name: "updateSliders", data: [[$("#slider-0").slider("values",0), $("#slider-0").slider("values",1)], [$("#slider-1").slider("values",0),$("#slider-1").slider("values",1)], [$("#slider-2").slider("values",0),$("#slider-2").slider("values",1)], [$("#slider-3").slider("values",0),$("#slider-3").slider("values",0)]] });
+				console.log({ name: "updateSliders", data: [[$("#slider-0").slider("values",0), $("#slider-0").slider("values",1)], [$("#slider-1").slider("values",0),$("#slider-1").slider("values",1)], [$("#slider-2").slider("values",0),$("#slider-2").slider("values",1)], [$("#slider-3").slider("values",0),$("#slider-3").slider("values",0)]] });
+			}
+		});
+		$("#slider-0").slider({
+			min: 0,
+			max: 24,
+			values: [0, 24]
+		});
+		$("#slider-1").slider({
+			min: -60,
+			max: 150,
+			values: [-60, 150]
+		});
+		$("#slider-2").slider({
+			min: 0,
+			max: 2000,
+			values: [0, 2000]
+		});
+		
+		$(".amount").val(function() {
+			return $("#slider-" + $(this).attr("id").substring(7,8)).slider("values", 0) + " - " + $("#slider-" + $(this).attr("id").substring(7,8)).slider("values", 1);
+		});
+	});
+	</script>
+</body>
+</html>
