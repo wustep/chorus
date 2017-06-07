@@ -1,13 +1,7 @@
 /* Crossfilter demo developed from https://square.github.io/crossfilter/ */
 
 $(function() {
-	var socket = io();
-	
-	socket.emit('get data');	
-	socket.on('get data', function (_data) {
-		console.log("Obtained data from server.");	
-
-		flights = _data;
+	d3.csv("flights-3m.json", function(error, flights) {
 		flights.forEach((d, i) => {
 			d.index = i;
 			d.date = parseDate(d.date);
@@ -27,7 +21,7 @@ $(function() {
 				.key(function(d) { return d3.time.day(d.date); });
 
 		// Create the crossfilter for the relevant dimensions and groups.
-		var flight = crossfilter(_data),
+		var flight = crossfilter(flights),
 			all = flight.groupAll(),
 			date = flight.dimension(function(d) { return d.date; }),
 			dates = date.group(d3.time.day),
@@ -71,6 +65,19 @@ $(function() {
 					.filter([new Date(2001, 1, 1), new Date(2001, 2, 1)])
 
 		];
+		
+		/* Socket section here */
+		var socket = io();
+		socket.emit('get data');
+		socket.on("get data", function (data) {
+			gen(data);
+		});
+		socket.on("render all", function (data) {
+			gen(data);
+		});
+		function gen(data) { // uses provieded window.filter
+			filter([[data[0][0], data[0][1]], [data[1][0], data[1][1]], [data[2][0], data[2][1]], null]);
+		}
 
 		// Given our array of charts, which we assume are in the same order as the
 		// .chart elements in the DOM, bind the charts to the DOM and render them.
@@ -359,7 +366,5 @@ $(function() {
 
 			return d3.rebind(chart, brush, "on");
 		}
-
-		});
-	
+	});
 });
