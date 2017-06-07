@@ -42,10 +42,32 @@
 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 	<script src="lib/crossfilter.v1.min.js"></script>
 	<script src="lib/d3.v3.min.js"></script>
-	<script src="client.js"></script>
 	<script>
 	$(function() {
+		function gen(data) {
+			for (var i = 0; i < data.length; i++) {
+				for (var j = 0; j < data.length; j++) {
+					$("#slider-"+i).slider("values",j,data[i][j]);
+				} 
+			}
+			$(".amount").val(function() { // duplicated; this is at bottom
+				return $("#slider-" + $(this).attr("id").substring(7,8)).slider("values", 0) + " - " + $("#slider-" + $(this).attr("id").substring(7,8)).slider("values", 1);
+			});
+		}
+	
 		var socket = io();
+		socket.emit('get data');
+		socket.on('get data', function (data) {
+			console.log("Obtained data from server");
+			gen(data);
+		});
+		socket.on('render all', function (data) {
+			gen(data);
+		});
+		socket.on('generate data', function (data) {
+			socket.emit("generate data", [[$("#slider-0").slider("values",0), $("#slider-0").slider("values",1)], [$("#slider-1").slider("values",0),$("#slider-1").slider("values",1)], [$("#slider-2").slider("values",0),$("#slider-2").slider("values",1)], [$("#slider-3").slider("values",0),$("#slider-3").slider("values",0)]]);
+		});
+		
 		$( ".slider" ).slider({
 			range: true,
 			slide: function( event, ui ) {
@@ -55,8 +77,7 @@
 			},
 			stop: function(event, ui) {
 				var id = $(this).attr("id").substring(7,8);
-				socket.emit("command", { name: "updateSliders", data: [[$("#slider-0").slider("values",0), $("#slider-0").slider("values",1)], [$("#slider-1").slider("values",0),$("#slider-1").slider("values",1)], [$("#slider-2").slider("values",0),$("#slider-2").slider("values",1)], [$("#slider-3").slider("values",0),$("#slider-3").slider("values",0)]] });
-				console.log({ name: "updateSliders", data: [[$("#slider-0").slider("values",0), $("#slider-0").slider("values",1)], [$("#slider-1").slider("values",0),$("#slider-1").slider("values",1)], [$("#slider-2").slider("values",0),$("#slider-2").slider("values",1)], [$("#slider-3").slider("values",0),$("#slider-3").slider("values",0)]] });
+				socket.emit("command", { name: "updateSliders", params: { data: [[$("#slider-0").slider("values",0), $("#slider-0").slider("values",1)], [$("#slider-1").slider("values",0),$("#slider-1").slider("values",1)], [$("#slider-2").slider("values",0),$("#slider-2").slider("values",1)], [$("#slider-3").slider("values",0),$("#slider-3").slider("values",0)]] }});
 			}
 		});
 		$("#slider-0").slider({
