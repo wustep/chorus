@@ -6,8 +6,10 @@ const d3 = require('d3');
 const fs = require("fs");
 const crossfilter = require('crossfilter');
 
+var _data = [];
+
 module.exports = {
-	_generateOnServer: true, // Required, no default
+	_generateOnServer: false, // Required, no default
 	
 	_commands: {
 		updateSliders: {
@@ -15,11 +17,12 @@ module.exports = {
 			emit: "render all",
 			emitSender: true,
 			emitBroadcast: true,
-			requireGenerated: true,
-			returnData: false
+			requireGenerated: false,
+			returnData: true
 		}
 	},
 
+	/*
 	create: (callback) => {
 		fs.readFile(__dirname + "/flights.json", "utf8", (error, data) => {
 			var flights = d3.csvParse(data);
@@ -32,8 +35,9 @@ module.exports = {
 			callback(null, flights);
 		});
 	},
+	*/
 	
-	updateSliders: () => {
-		return;
+	updateSliders: (params, callback) => {
+		return callback(null, params.data);
 	}
 };
