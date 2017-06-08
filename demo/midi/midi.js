@@ -49,39 +49,31 @@ app.get('/note', (req, res) => { // Give client incremented note
 const d3 = require('d3');
 const fs = require("fs");
 
-var _data = {
-	scheme: 0, // 0 = notes disappear immediately, 1 = notes stay fade
-	notes: new Array(88)
-};
-
 var notes = new Array(88); // Keep track of time at which notes are played
 
 module.exports = {
+	_data: {
+		scheme: 0, // 0 = notes disappear immediately, 1 = notes stay fade
+		notes: new Array(88)
+	},
+	
 	_generateOnServer: true, // Required, no default
 
 	_commands: {
 		noteOn: {
-			replaceData: false,
 			emit: "noteOn",
 			emitSender: false,
 			emitBroadcast: true,
-			returnData: true
 		},
 		noteOff: {
-			replaceData: false,
 			emit: "noteOff",
 			emitSender: false,
 			emitBroadcast: true,
-			returnData: true	
 		}
 	},
 	
-	create: () => {
-		
-	},
-	
-	reset: () => { // if scheme is 1, reset all notes to default (unpressed)
-		
+	create: (callback) => {
+		callback(null, module.exports._data);
 	},
 	
 	noteOn: (params, callback) => { // TODO: Possibly validate input?
@@ -93,13 +85,9 @@ module.exports = {
 	
 	noteOff: (params, callback) => { 
 		if (notes[params.note] !== undefined && notes[params.note] !== -1) {
-			console.log(process.uptime() - notes[params.note]);
 			notes[params.note] = -1;
+			module.exports._data.notes[params.note] += process.uptime() - notes[params.note];
 		}
 		return callback(null, params);
-	},
-	
-	changeScheme: () => {
-		
 	}
 };

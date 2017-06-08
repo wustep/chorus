@@ -6,19 +6,17 @@ const d3 = require('d3');
 const fs = require("fs");
 const crossfilter = require('crossfilter');
 
-var _data = [];
-
 module.exports = {
+	_data: [],
+	
 	_generateOnServer: false, // Required, no default
 	
 	_commands: {
 		updateSliders: {
-			replaceData: true,
 			emit: "render all",
 			emitSender: true,
 			emitBroadcast: true,
 			requireGenerated: false,
-			returnData: true
 		}
 	},
 
@@ -38,6 +36,7 @@ module.exports = {
 	*/
 	
 	updateSliders: (params, callback) => {
+		module.exports._data = params.data
 		return callback(null, params.data);
 	}
 };
