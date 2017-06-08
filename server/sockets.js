@@ -4,7 +4,6 @@ const gen = require("../" + process.env.server);
 
 const _generateOnServer = gen._generateOnServer; // TODO: Better way for user to decide whether to generate data on server or client
 
-var _data;
 var _generated = false;
 if (_generateOnServer) { // If generateOnServer is set, generate data
 	gen.create(function(err, data) { 
@@ -14,7 +13,6 @@ if (_generateOnServer) { // If generateOnServer is set, generate data
 		}
 		log("Generated data on server");
 		_generated = true;
-		_data = data;
 	});
 }
 
@@ -35,7 +33,7 @@ module.exports = {
 				socket.on('generate data', (data) => { 
 					if (!_generated) {
 						log("Generated data on server from client");
-						_data = data;
+						gen._data = data;
 						_generated = true;
 					} else {
 						console.error("[Error] Client generated data but it was already generated");
@@ -46,7 +44,7 @@ module.exports = {
 			socket.on('get data', () => { // Get data request, only done once per client
 				if (_generated) { // Send data to client
 					log("Client data request. Sending data to client.")
-					socket.emit('get data', _data); 
+					socket.emit('get data', gen._data); 
 				} else if (!_generateOnServer) { // Generate on client because not generated yet
 					log("Client data request. Sending generate data request to client.")
 					socket.emit('generate data');
@@ -65,10 +63,6 @@ module.exports = {
 								return;
 							} else {
 								var add = ""; // Additional console info
-								if (props.replaceData) {
-									_data = data;
-									add += " Replacing data.";
-								}
 								if (props.emitSender) { // TODO: Add option to decide what data to emit with command?
 									socket.emit(props.emit, data);
 									add += " Sending command (" + props.emit + ") to client.";
@@ -77,13 +71,7 @@ module.exports = {
 									socket.broadcast.emit(props.emit, data);
 									add += " Broadcasting command (" + props.emit + ") to all other clients.";
 								}
-								if (props.returnData) {
-									add += " Returning data.";
-								}
 								log("Command (" + d.name + ") done." + add);
-								if (props.returnData) { 
-									return data;
-								}
 							}
 						}); // Might need more security/validation?
 					} else {

@@ -7,34 +7,31 @@ TBDBITL demo developed from https://github.com/wustep/tbdbitl */
 const d3 = require('d3');
 const fs = require("fs");
 
-var _data = {
-	row: [],
-	pie: [],
-	dot: [],
-	instruments: 0
-};
 var csvData = [];
 var rowNum = 0;
 
 module.exports = {
+	_data: {
+		row: [],
+		pie: [],
+		dot: [],
+		instruments: 0
+	},
+	
 	_generateOnServer: true, // Required, no default
 
 	_commands: {
 		addRow: { // All these default to false right now
-			replaceData: true,
 			emit: "render all",
 			emitSender: true,
 			emitBroadcast: true,
 			requireGenerated: true,
-			returnData: false
 		},
 		deleteRow: {
-			replaceData: true,
 			emit: "render all",
 			emitSender: true,
 			emitBroadcast: true,
 			requireGenerated: true,
-			returnData: false
 		}
 	},
 	
@@ -44,9 +41,8 @@ module.exports = {
 				callback("CSV not read properly");
 				return;
 			}
-			
 			csvData = d3.csvParse(data);
-			callback(null, _data);
+			callback(null, module.exports._data);
 		});
 	},
 	
@@ -55,8 +51,8 @@ module.exports = {
 			callback("CSV not read properly");
 			return;
 		}
-		addRow();
-		callback(null, _data); 
+		addRow(module.exports._data);
+		callback(null, module.exports._data); 
 	},
 	
 	deleteRow: (params, callback) => {
@@ -64,12 +60,12 @@ module.exports = {
 			callback("CSV not read properly");
 			return;
 		}
-		deleteRow();
-		callback(null, _data); 
+		deleteRow(module.exports._data);
+		callback(null, module.exports._data); 
 	}
 };
 
-function addRow() { // Adds next row of data and returns the row letter
+function addRow(_data) { // Adds next row of data and returns the row letter
 	var row = "";
 	if (csvData && rowNum < csvData.length) {
 		row = csvData[rowNum]["row"];
@@ -77,14 +73,14 @@ function addRow() { // Adds next row of data and returns the row letter
 			if (csvData[rowNum]["row"] != row) { // New row, end here.
 				break;
 			}
-			addToDataset(csvData[rowNum]["label"], csvData[rowNum]["value"], csvData[rowNum]["row"]);
+			addToDataset(_data, csvData[rowNum]["label"], csvData[rowNum]["value"], csvData[rowNum]["row"]);
 			rowNum++;
 		}
 	}
 	_data.row = row;
 }
 
-function deleteRow() { // Remove last row of data and returns the row letter or ""
+function deleteRow(_data) { // Remove last row of data and returns the row letter or ""
 	var row = "";
 	if (csvData && rowNum >= 1 && rowNum <= csvData.length) {
 		rowNum--;
@@ -94,7 +90,7 @@ function deleteRow() { // Remove last row of data and returns the row letter or 
 				row = csvData[rowNum]["row"];
 				break;
 			}
-			addToDataset(csvData[rowNum]["label"], csvData[rowNum]["value"] * -1, csvData[rowNum]["row"]);
+			addToDataset(_data, csvData[rowNum]["label"], csvData[rowNum]["value"] * -1, csvData[rowNum]["row"]);
 			rowNum--;
 		}
 		rowNum++;
@@ -102,7 +98,7 @@ function deleteRow() { // Remove last row of data and returns the row letter or 
 	_data.row = row;
 }
 
-function addToDataset(label, value, row) { // Add/remove instrument to dataset or increment proper category
+function addToDataset(_data, label, value, row) { // Add/remove instrument to dataset or increment proper category
 	var instrumentId = 0; 
 	var done = 0;
 	for (var i = 0; i < _data.pie.length; i++) { // Add to pie data
