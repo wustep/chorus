@@ -69,6 +69,7 @@
 		$( ".slider" ).slider({
 			range: true,
 			slide: function( event, ui ) {
+				if (ui.values[0] > ui.values[1]) return false; // Prevent max from going under min
 				updateAmounts($(this));
 			},
 			stop: function(event, ui) {
