@@ -76,7 +76,7 @@ $(function() {
 			gen(data);
 		});
 		function gen(data) { // uses provieded window.filter
-			filter([[data[0][0], data[0][1]], [data[1][0], data[1][1]], [data[2][0], data[2][1]], null]);
+			filter([[data[0][0], data[0][1]], [data[1][0], data[1][1]], [data[2][0], data[2][1]], [new Date(data[3][0] * 1000), new Date(data[3][1]*1000)]]);
 		}
 
 		// Given our array of charts, which we assume are in the same order as the
@@ -191,7 +191,7 @@ $(function() {
 
 			function chart(div) {
 				var width = x.range()[1],
-						height = y.range()[0];
+					height = y.range()[0];
 
 				y.domain([0, group.top(1)[0].value]);
 
@@ -202,36 +202,36 @@ $(function() {
 					// Create the skeletal chart.
 					if (g.empty()) {
 						div.select(".title").append("a")
-								.attr("href", "javascript:reset(" + id + ")")
-								.attr("class", "reset")
-								.text("reset")
-								.style("display", "none");
+							.attr("href", "javascript:reset(" + id + ")")
+							.attr("class", "reset")
+							.text("reset")
+							.style("display", "none");
 
 						g = div.append("svg")
-								.attr("width", width + margin.left + margin.right)
-								.attr("height", height + margin.top + margin.bottom)
+							.attr("width", width + margin.left + margin.right)
+							.attr("height", height + margin.top + margin.bottom)
 							.append("g")
-								.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+							.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 						g.append("clipPath")
-								.attr("id", "clip-" + id)
+							.attr("id", "clip-" + id)
 							.append("rect")
-								.attr("width", width)
-								.attr("height", height);
+							.attr("width", width)
+							.attr("height", height);
 
 						g.selectAll(".bar")
-								.data(["background", "foreground"])
+							.data(["background", "foreground"])
 							.enter().append("path")
-								.attr("class", function(d) { return d + " bar"; })
-								.datum(group.all());
+							.attr("class", function(d) { return d + " bar"; })
+							.datum(group.all());
 
 						g.selectAll(".foreground.bar")
-								.attr("clip-path", "url(#clip-" + id + ")");
+							.attr("clip-path", "url(#clip-" + id + ")");
 
 						g.append("g")
-								.attr("class", "axis")
-								.attr("transform", "translate(0," + height + ")")
-								.call(axis);
+							.attr("class", "axis")
+							.attr("transform", "translate(0," + height + ")")
+							.call(axis);
 
 						// Initialize the brush component with pretty resize handles.
 						var gBrush = g.append("g").attr("class", "brush").call(brush);
@@ -246,13 +246,13 @@ $(function() {
 						div.select(".title a").style("display", brush.empty() ? "none" : null);
 						if (brush.empty()) {
 							g.selectAll("#clip-" + id + " rect")
-									.attr("x", 0)
-									.attr("width", width);
+								.attr("x", 0)
+								.attr("width", width);
 						} else {
 							var extent = brush.extent();
 							g.selectAll("#clip-" + id + " rect")
-									.attr("x", x(extent[0]))
-									.attr("width", x(extent[1]) - x(extent[0]));
+								.attr("x", x(extent[0]))
+								.attr("width", x(extent[1]) - x(extent[0]));
 						}
 					}
 
@@ -297,7 +297,7 @@ $(function() {
 						extent = brush.extent();
 				if (round) g.select(".brush")
 						.call(brush.extent(extent = extent.map(round)))
-					.selectAll(".resize")
+						.selectAll(".resize")
 						.style("display", null);
 				g.select("#clip-" + id + " rect")
 						.attr("x", x(extent[0]))

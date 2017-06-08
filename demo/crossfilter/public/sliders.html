@@ -50,9 +50,7 @@
 					$("#slider-"+i).slider("values",j,data[i][j]);
 				} 
 			}
-			$(".amount").val(function() { // duplicated; this is at bottom
-				return $("#slider-" + $(this).attr("id").substring(7,8)).slider("values", 0) + " - " + $("#slider-" + $(this).attr("id").substring(7,8)).slider("values", 1);
-			});
+			$(".amount").each(function() { updateAmounts($(this))});
 		}
 	
 		var socket = io();
@@ -71,13 +69,11 @@
 		$( ".slider" ).slider({
 			range: true,
 			slide: function( event, ui ) {
-				var id = $(this).attr("id").substring(7,8);
-				$("#amount-" + id).val(ui.values[0] + " - " + ui.values[1]);
-
+				updateAmounts($(this));
 			},
 			stop: function(event, ui) {
 				var id = $(this).attr("id").substring(7,8);
-				socket.emit("command", { name: "updateSliders", params: { data: [[$("#slider-0").slider("values",0), $("#slider-0").slider("values",1)], [$("#slider-1").slider("values",0),$("#slider-1").slider("values",1)], [$("#slider-2").slider("values",0),$("#slider-2").slider("values",1)], [$("#slider-3").slider("values",0),$("#slider-3").slider("values",0)]] }});
+				socket.emit("command", { name: "updateSliders", params: { data: [[$("#slider-0").slider("values",0), $("#slider-0").slider("values",1)], [$("#slider-1").slider("values",0),$("#slider-1").slider("values",1)], [$("#slider-2").slider("values",0),$("#slider-2").slider("values",1)], [$("#slider-3").slider("values",0),$("#slider-3").slider("values",1)]] }});
 			}
 		});
 		$("#slider-0").slider({
@@ -95,10 +91,26 @@
 			max: 2000,
 			values: [0, 2000]
 		});
-		
-		$(".amount").val(function() {
-			return $("#slider-" + $(this).attr("id").substring(7,8)).slider("values", 0) + " - " + $("#slider-" + $(this).attr("id").substring(7,8)).slider("values", 1);
+		$("#slider-3").slider({
+			min: 978307200,
+			max: 985996800,
+			values: [978307200, 985996800]
 		});
+		
+		$(".amount").each(function() { updateAmounts($(this))});
+		
+		function updateAmounts(obj) {
+			var id = obj.attr("id").substring(7,8);
+			if (id === '3') { // parse date
+				var t0 = new Date($("#slider-" + id).slider("values", 0) * 1000);
+				var t1 = new Date($("#slider-" + id).slider("values", 1) * 1000);
+				var t0f = t0.toLocaleDateString();
+				var t1f = t1.toLocaleDateString();
+				$(obj).val(t0f + " - " + t1f);
+			} else {
+				$(obj).val($("#slider-" + id).slider("values", 0) + " - " + $("#slider-" + id).slider("values", 1));
+			}
+		}
 	});
 	</script>
 </body>
