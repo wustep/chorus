@@ -93,8 +93,8 @@
 			values: [0, 2000]
 		});
 		$("#slider-3").slider({
-			min: 978307200,
-			max: 985996800,
+			min: 978307200, // Jan 1st, 2001 converted to Unix epoch time
+			max: 985996800, // March 31st, 2001
 			values: [978307200, 985996800]
 		});
 		
@@ -103,9 +103,9 @@
 		function updateAmounts(obj) {
 			var id = obj.attr("id").substring(7,8);
 			if (id === '3') { // parse date
-				var t0 = new Date($("#slider-" + id).slider("values", 0) * 1000);
+				var t0 = new Date($("#slider-" + id).slider("values", 0) * 1000); 
 				var t1 = new Date($("#slider-" + id).slider("values", 1) * 1000);
-				var t0f = t0.toLocaleDateString();
+				var t0f = t0.toLocaleDateString(); // Convert to mm/dd/yyyy (or dd/mm/yyyy depending on locale) for user display
 				var t1f = t1.toLocaleDateString();
 				$(obj).val(t0f + " - " + t1f);
 			} else {
