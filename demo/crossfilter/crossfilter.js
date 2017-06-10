@@ -12,11 +12,17 @@ module.exports = {
 	_generateOnServer: false, // Required, no default
 	
 	_commands: {
-		updateSliders: {
+		pushAll: {
 			emit: "render all",
-			emitSender: true,
+			emitSender: false,
 			emitBroadcast: true,
-			requireGenerated: false,
+			requireGenerated: false
+		},
+		pushMain: {
+			emit: "render main",
+			emitSender: false,
+			emitBroadcast: true,
+			requireGenerated: false
 		}
 	},
 
@@ -35,8 +41,13 @@ module.exports = {
 	},
 	*/
 	
-	updateSliders: (params, callback) => {
-		module.exports._data = params.data
+	pushAll: (params, callback) => {
+		module.exports._data = params.data;
+		return callback(null, params.data);
+	},
+	
+	pushMain: (params, callback) => {
+		module.exports._data = params.data;
 		return callback(null, params.data);
 	}
 };

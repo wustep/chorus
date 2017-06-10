@@ -75,6 +75,22 @@ $(function() {
 		socket.on("render all", function (data) {
 			gen(data);
 		});
+		socket.on("render main", function (data) {
+			if (!_chorusConfig.display) gen(data);
+		});
+		$("#chorus-display").on("click", function() {
+			if ($(this).attr("value") === "main") {
+				socket.emit('get data');
+			}
+		});
+		$("#chorus-push").on("click", function() {
+			if ($(this).attr("value") === "main") {
+				socket.emit("command", {name: "pushMain"});
+			} else {
+				socket.emit("command", {name: "pushAll"});
+			}
+		});
+		
 		function gen(data) { // uses provieded window.filter
 			filter([[data[0][0], data[0][1]], [data[1][0], data[1][1]], [data[2][0], data[2][1]], [new Date(data[3][0] * 1000), new Date(data[3][1]*1000)]]);
 		}

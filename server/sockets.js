@@ -36,7 +36,7 @@ module.exports = {
 						gen._data = data;
 						_generated = true;
 					} else {
-						console.error("[Error] Client generated data but it was already generated");
+						console.log("[Note] Client generated data but it was already generated");
 					}
 				});
 			}
@@ -57,7 +57,8 @@ module.exports = {
 				if ("name" in d && d.name in gen._commands) { // Valid command
 					const props = gen._commands[d.name];
 					if (!props.requireGenerated || (props.requireGenerated && _generated)) { // Check if data was generated if needed
-						gen[d.name](d.params, function (err, data) { 
+						if (typeof d.params == "undefined") d.params = []; // Prevents undefined error.
+						gen[d.name](d.params, function (err, data) { // TODO: How to deal with malicious sockets input?
 							if (err) {
 								log("[Error] " + err);
 								return;
@@ -73,7 +74,7 @@ module.exports = {
 								}
 								log("Command (" + d.name + ") done." + add);
 							}
-						}); // Might need more security/validation?
+						}); // Definitely needs more security/validation for live
 					} else {
 						 console.error("[Error] Client attempted command (" + d.name + ") that required data generation, but data was not generated yet.")
 					}

@@ -3,6 +3,8 @@
 	<meta charset="utf-8">
 	<title>Crossfilter Demo</title>
 	<link href="main.css" rel="stylesheet">
+	<link href="client/chorus.css" rel="stylesheet" type="text/css" />
+
 </head>
 <body>
 	<div id="body">
@@ -38,6 +40,15 @@
 	<script src="lib/jquery.3.2.1.min.js"></script>
 	<script src="lib/crossfilter.v1.min.js"></script>
 	<script src="lib/d3.v3.min.js"></script>
+	<script>
+		var _chorusConfig = {
+			nav: true,
+			display: 1, // 0 for main display, 1 for secondary; TODO: Set up automatic option that starts at 0 and then goes to 1
+			displayBtn: true,
+			pushBtn: true
+		}
+	</script>
+	<script src="client/chorus.js"></script>
 	<script src="client.js"></script>
 </body>
 </html>

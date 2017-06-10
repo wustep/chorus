@@ -1,0 +1,66 @@
+#chorus-nav { /* Based on Bootstrap */
+	right: 0;
+	bottom: 0;
+	left: 0;
+	position: fixed;
+	background-color: #f7f7f7;
+	border-top: 1px solid rgba(0,0,0,.15);
+	padding: .75rem 1rem;
+	margin: 0;
+}
+
+#chorus-nav > button {
+	display: inline-block;
+    font-weight: 400;
+    line-height: 1.25;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    background-image: none;
+    background-color: transparent;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    padding: .5rem 1rem;
+    font-size: 1rem;
+    -webkit-transition: all .2s ease-in-out;
+    -o-transition: all .2s ease-in-out;
+    transition: all .2s ease-in-out;
+}
+
+#chorus-nav > .chorus-display-main {
+	color: #fff;
+    border-color: #5cb85c;
+	background-color: #5cb85c;
+}
+
+#chorus-nav > .chorus-display-main:hover {
+	color: #5cb85c;
+	background-color: transparent;
+}
+
+#chorus-nav > .chorus-display-aux {
+	color: #fff;
+    border-color: #c30;
+	background-color: #c30;
+}
+
+#chorus-nav > .chorus-display-aux:hover {
+	color: #c30;
+	background-color: transparent;
+}
+
+#chorus-nav > #chorus-push {
+	margin-left: 10px;
+	color: #fff;
+    border-color: rgba(0,0,0,.20);
+	background-color: rgba(0,0,0,.20);
+}
+
+#chorus-nav > #chorus-push:hover {
+	color: rgba(0,0,0,.20);
+	background-color: transparent;
+}
