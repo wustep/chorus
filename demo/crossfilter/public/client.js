@@ -37,21 +37,21 @@ $(function() {
 			barChart()
 					.dimension(hour)
 					.group(hours)
-				.x(d3.scale.linear()
+					.x(d3.scale.linear()
 					.domain([0, 24])
 					.rangeRound([0, 10 * 24])),
 
 			barChart()
 					.dimension(delay)
 					.group(delays)
-				.x(d3.scale.linear()
+					.x(d3.scale.linear()
 					.domain([-60, 150])
 					.rangeRound([0, 10 * 21])),
 
 			barChart()
 					.dimension(distance)
 					.group(distances)
-				.x(d3.scale.linear()
+					.x(d3.scale.linear()
 					.domain([0, 2000])
 					.rangeRound([0, 10 * 40])),
 
@@ -59,42 +59,12 @@ $(function() {
 					.dimension(date)
 					.group(dates)
 					.round(d3.time.day.round)
-				.x(d3.time.scale()
+					.x(d3.time.scale()
 					.domain([new Date(2001, 0, 1), new Date(2001, 3, 1)])
 					.rangeRound([0, 10 * 90]))
 					.filter([new Date(2001, 1, 1), new Date(2001, 2, 1)])
 
 		];
-		
-		/* Socket section here */
-		var socket = io();
-		socket.emit('get data');
-		socket.on("get data", function (data) {
-			gen(data);
-		});
-		socket.on("render all", function (data) {
-			gen(data);
-		});
-		socket.on("render main", function (data) {
-			if (!_chorusConfig.display) gen(data);
-		});
-		$("#chorus-display").on("click", function() {
-			if ($(this).attr("value") === "main") {
-				socket.emit('get data');
-			}
-		});
-		$("#chorus-push").on("click", function() {
-			if ($(this).attr("value") === "main") {
-				socket.emit("command", {name: "pushMain"});
-			} else {
-				socket.emit("command", {name: "pushAll"});
-			}
-		});
-		
-		function gen(data) { // uses provieded window.filter
-			filter([[data[0][0], data[0][1]], [data[1][0], data[1][1]], [data[2][0], data[2][1]], [new Date(data[3][0] * 1000), new Date(data[3][1]*1000)]]);
-		}
-
 		// Given our array of charts, which we assume are in the same order as the
 		// .chart elements in the DOM, bind the charts to the DOM and render them.
 		// We also listen to the chart's brush events to update the display.
@@ -152,7 +122,7 @@ $(function() {
 
 				date.enter().append("div")
 						.attr("class", "date")
-					.append("div")
+						.append("div")
 						.attr("class", "day")
 						.text(function(d) { return formatDate(d.values[0].date); });
 
@@ -382,5 +352,34 @@ $(function() {
 
 			return d3.rebind(chart, brush, "on");
 		}
+		
+		/* Socket section here */
+		var socket = io();
+		socket.emit('get data');
+		socket.on("get data", function (data) {
+			gen(data);
+		});
+		socket.on("render all", function (data) {
+			gen(data);
+		});
+		socket.on("render main", function (data) {
+			if (!_chorusConfig.display) gen(data);
+		});
+		$("#chorus-display").on("click", function() {
+			if ($(this).attr("value") === "main") {
+				socket.emit('get data');
+			}
+		});
+		$("#chorus-push").on("click", function() {
+			/*if ($(this).attr("value") === "main") {
+				socket.emit("command", {name: "pushMain"});
+			} else {
+				socket.emit("command", {name: "pushAll"});
+			}*/
+		});
+		function gen(data) { // uses provieded window.filter
+			filter([[data[0][0], data[0][1]], [data[1][0], data[1][1]], [data[2][0], data[2][1]], [new Date(data[3][0] * 1000), new Date(data[3][1]*1000)]]);
+		}
+
 	});
 });
