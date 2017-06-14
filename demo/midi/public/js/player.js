@@ -6,7 +6,7 @@ var sound = 0; // Sound = 0 = no sound from this window, 1 = sound
 var songid = 0; // Current song being played
 
 
-$(function() {
+$(function() { // TODO: Clean up so all button functions are jQuery on clicks instead
 	// Set up Jquery buttons
 
 	$("#playerdiv" ).draggable();
@@ -34,6 +34,10 @@ $(function() {
 		icon: "ui-icon-help",
 		showLabel: false
 	});
+	$("#upload").button({
+		icon: "ui-icon-arrowstop-1-n",
+		showLabel: false
+	});
 	
 	// Let space pause/play
 	$(document).on('keydown', function(e) { 
@@ -42,8 +46,61 @@ $(function() {
 			playPauseStop();
 		}
 	});
+
+	// Set up the 2 jQueryUI Dialogs: Info / Upload
+	var infoDialog = $("#info-dialog").dialog({
+		modal: false,
+		autoOpen: false,
+		resizable: false,
+		height: 160,
+		width: 420
+	});
+	var uploadDialog = $("#upload-dialog").dialog({
+		modal: false,
+		autoOpen: false,
+		resizable: false,
+		height: 160,
+		width: 420
+	});
+
+
+	$("#upload").on("click", function() { 
+		if ($("#upload-dialog").dialog("isOpen")) { // Close upload / info if open 
+			$("#upload-dialog").dialog("close");
+		} else {
+			if ($("#info-dialog").dialog("isOpen")) {
+				$("#info-dialog").dialog("close");
+			}
+			$("#upload-dialog").dialog("open");
+		} 
+	});
+
+	$("#upload-file").on("click", function() {
+		var files = $('#file')[0].files;
+		if (files.length > 0) {
+			getBase64(files[0], function(error, result) {
+				if (error) {
+					alert("Error in adding song: " + result);
+				} else {
+					alert("Added song: " + files[0].name);
+					songNames.push(files[0].name);
+					song.push(result);
+				}
+			});
+		}
+	});
 });
 
+function getBase64(file, callback) { // getBase64 from https://stackoverflow.com/a/36281449
+	var reader = new FileReader();
+	reader.readAsDataURL(file);
+   	reader.onload = function () {
+    	callback(null, reader.result);
+   	};
+   	reader.onerror = function (error) {
+   		callback("Error reading file");
+   	};
+}
 
 // Toggle between Pause and Play modes.
 var playPauseStop = function(stop) {
@@ -63,17 +120,16 @@ var playPauseStop = function(stop) {
 
 // Info function and dialog
 var getInfo = function() {
-	if ($("#info-dialog").dialog("isOpen")) $("#info-dialog").dialog("close");
-	else $("#info-dialog").dialog("open");
+	if ($("#info-dialog").dialog("isOpen")) { 
+		$("#info-dialog").dialog("close");
+	} else {
+		if ($("#upload-dialog").dialog("isOpen")) {
+			$("#upload-dialog").dialog("close");
+		}
+		$("#info-dialog").dialog("open");
+	} 
 	$("#nowplaying").html(songNames[songid]);
 };
-var infoDialog = $("#info-dialog").dialog({
-	modal: false,
-	autoOpen: false,
-	resizable: false,
-	height: 150,
-	width: 420
-});
 
 // Clear all colors on app
 var clearColors = function() {
@@ -97,7 +153,6 @@ MIDI.loadPlugin({
 
 		MIDI.setVolume(0, 127 * sound);
 
-		
 		player.addListener(function(d) {
 			if (d) {
 				if (d.message === 144) {
@@ -158,7 +213,7 @@ var MIDIPlayerPercentage = function(player) {
 	};
 	player.getNextSong = function(n) {
 		clearColors();
-		songid = Math.abs((songid + n) % song.length);
+		songid = (((songid + n) % song.length) + song.length) % song.length; // Additional arithmetic to fix -1 to song.length
 		player.loadFile(song[songid], player.start); // load MIDI
 		$("#nowplaying").html(songNames[songid]);
 		$("#playPauseStop").button({ icon: "ui-icon-pause" });
