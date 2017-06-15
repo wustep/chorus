@@ -73,7 +73,7 @@
 		$( ".slider" ).slider({
 			range: true,
 			slide: function( event, ui ) {
-				if (ui.values[0] > ui.values[1]) return false; // Prevent max from going under min
+				if (ui.values[0] >= ui.values[1]) return false; // Prevent max from going under or equal min
 				updateAmounts($("#amount-" + $(this).attr("id").substring(7,8)));
 			},
 			stop: function(event, ui) {

@@ -1,7 +1,7 @@
 /* Crossfilter demo developed from https://square.github.io/crossfilter/ */
 
 $(function() {
-	var _data = [null, null, null, null];
+	var _data = [null, null, null, null]; // CHORUS: Keep track of all filters, needed for crossfilter
 
 	d3.csv("flights-3m.json", function(error, flights) {
 		flights.forEach((d, i) => {
@@ -116,6 +116,9 @@ $(function() {
 		window.reset = function(i) {
 			charts[i].filter(null);
 			renderAll();
+			if ($("#chorus-display").attr("value") === "main") { // CHORUS: Send to Main displays on update, if Main
+				socket.emit("command", {name: "pushMain", params: { data: _data } });
+			}
 		};
 
 		function flightList(div) {
