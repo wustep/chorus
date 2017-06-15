@@ -46,8 +46,10 @@
 	$(function() {
 		function gen(data) {
 			for (var i = 0; i < data.length; i++) {
-				for (var j = 0; j < data.length; j++) {
-					$("#slider-"+i).slider("values",j,data[i][j]);
+				if (data[i] == null) {
+					$("#slider-"+i).slider("values", [$("#slider-"+i).slider('option').min, $("#slider-"+i).slider('option').max]);
+				} else {
+					$("#slider-"+i).slider("values", [data[i][0], data[i][1]]);
 				} 
 			}
 			$(".amount").each(function() { updateAmounts($(this))});
@@ -56,7 +58,6 @@
 		var socket = io();
 		socket.emit('get data');
 		socket.on('get data', function (data) {
-			console.log("Obtained data from server");
 			gen(data);
 		});
 		socket.on('render all', function (data) {
@@ -77,6 +78,7 @@
 			},
 			stop: function(event, ui) {
 				socket.emit("command", { name: "pushMain", params: { data: [[$("#slider-0").slider("values",0), $("#slider-0").slider("values",1)], [$("#slider-1").slider("values",0),$("#slider-1").slider("values",1)], [$("#slider-2").slider("values",0),$("#slider-2").slider("values",1)], [$("#slider-3").slider("values",0),$("#slider-3").slider("values",1)]] }});
+				updateAmounts($("#amount-" + $(this).attr("id").substring(7,8)));
 			}
 		});
 		$("#slider-0").slider({
@@ -95,9 +97,9 @@
 			values: [0, 2000]
 		});
 		$("#slider-3").slider({
-			min: 978307200, // Jan 1st, 2001 converted to Unix epoch time
-			max: 985996800, // March 31st, 2001
-			values: [978307200, 985996800]
+			min: 978307200000, // Jan 1st, 2001 converted to Unix epoch time
+			max: 985996800000, // March 31st, 2001
+			values: [978307200000, 985996800000]
 		});
 		
 		$(".amount").each(function() { updateAmounts($(this))});
@@ -105,8 +107,8 @@
 		function updateAmounts(obj) {
 			var id = obj.attr("id").substring(7,8);
 			if (id === '3') { // parse date
-				var t0 = new Date($("#slider-" + id).slider("values", 0) * 1000); 
-				var t1 = new Date($("#slider-" + id).slider("values", 1) * 1000);
+				var t0 = new Date($("#slider-" + id).slider("values", 0)); 
+				var t1 = new Date($("#slider-" + id).slider("values", 1));
 				var t0f = t0.toLocaleDateString(); // Convert to mm/dd/yyyy (or dd/mm/yyyy depending on locale) for user display
 				var t1f = t1.toLocaleDateString();
 				$(obj).val(t0f + " - " + t1f);

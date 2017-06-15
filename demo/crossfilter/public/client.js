@@ -1,6 +1,8 @@
 /* Crossfilter demo developed from https://square.github.io/crossfilter/ */
 
 $(function() {
+	var _data = [null, null, null, null];
+
 	d3.csv("flights-3m.json", function(error, flights) {
 		flights.forEach((d, i) => {
 			d.index = i;
@@ -103,9 +105,12 @@ $(function() {
 					d.substring(6, 8));
 		}
 
-		window.filter = function(filters) {
+		window.filter = function(filters, pushMain=true) { // CHORUS: pushMain is added here; this is used down in gen() so it doesn't push unnecessarily 
 			filters.forEach(function(d, i) { charts[i].filter(d); });
 			renderAll();
+			if (pushMain && $("#chorus-display").attr("value") === "main") { // CHORUS: Send to Main displays on update, if Main
+				socket.emit("command", {name: "pushMain", params: { data: _data } });
+			}
 		};
 
 		window.reset = function(i) {
@@ -292,6 +297,10 @@ $(function() {
 			});
 
 			brush.on("brushend.chart", function() {
+				updateData(id, brush.extent()); // CHORUS: Update data source
+				if ($("#chorus-display").attr("value") === "main") { // CHORUS: Send to Main displays on update, if Main
+					socket.emit("command", {name: "pushMain", params: { data: _data } });
+				}
 				if (brush.empty()) {
 					var div = d3.select(this.parentNode.parentNode.parentNode);
 					div.select(".title a").style("display", "none");
@@ -329,8 +338,10 @@ $(function() {
 			chart.filter = function(_) {
 				if (_) {
 					brush.extent(_);
+					updateData(id, brush.extent()); // CHORUS: Update data on filter here and on null
 					dimension.filterRange(_);
 				} else {
+					updateData(id, null);
 					brush.clear();
 					dimension.filterAll();
 				}
@@ -353,7 +364,7 @@ $(function() {
 			return d3.rebind(chart, brush, "on");
 		}
 		
-		/* Socket section here */
+		/* CHORUS section here */
 		var socket = io();
 		socket.emit('get data');
 		socket.on("get data", function (data) {
@@ -363,7 +374,7 @@ $(function() {
 			gen(data);
 		});
 		socket.on("render main", function (data) {
-			if (!_chorusConfig.display) gen(data);
+			if (!_chorusConfig.display) { gen(data); }
 		});
 		$("#chorus-display").on("click", function() {
 			if ($(this).attr("value") === "main") {
@@ -371,15 +382,21 @@ $(function() {
 			}
 		});
 		$("#chorus-push").on("click", function() {
-			/*if ($(this).attr("value") === "main") {
-				socket.emit("command", {name: "pushMain"});
+			if ($(this).attr("value") === "main") {
+				socket.emit("command", {name: "pushMain", params: { data: _data } });
 			} else {
-				socket.emit("command", {name: "pushAll"});
-			}*/
+				socket.emit("command", {name: "pushAll", params: { data: _data } });
+			}
 		});
 		function gen(data) { // uses provieded window.filter
-			filter([[data[0][0], data[0][1]], [data[1][0], data[1][1]], [data[2][0], data[2][1]], [new Date(data[3][0] * 1000), new Date(data[3][1]*1000)]]);
+			if (data[3] !== null) data[3] = [new Date(data[3][0]), new Date(data[3][1])];
+			filter(data, false);
 		}
-
+		function updateData(chart, extent) { // Update _data, which keeps track of the current extents on this instance 
+			if (chart == 3 && extent !== null) { // Revise for datetime
+				extent = [extent[0].getTime(), extent[1].getTime()];
+			}
+			_data[chart] = extent;
+		}
 	});
 });
