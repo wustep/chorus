@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Adapted from https://leaflet.github.io/Leaflet.draw/docs/leaflet-draw-latest.html#leaflet-1-0-examples -->
+    <title>Leaflet.draw vector editing handlers</title>
+
+    <script src="lib/leaflet-src.js"></script>
+    <link rel="stylesheet" href="lib/leaflet.css"/>
+
+    <script src="lib/Leaflet.draw.js"></script>
+    <script src="lib/Leaflet.Draw.Event.js"></script>
+    <link rel="stylesheet" href="lib/leaflet.draw.css"/>
+	<link href="client/chorus.css" rel="stylesheet" type="text/css" />
+
+    <script src="lib/Toolbar.js"></script>
+    <script src="lib/Tooltip.js"></script>
+
+    <script src="lib/GeometryUtil.js"></script>
+    <script src="lib/LatLngUtil.js"></script>
+    <script src="lib/LineUtil.Intersect.js"></script>
+    <script src="lib/Polygon.Intersect.js"></script>
+    <script src="lib/Polyline.Intersect.js"></script>
+    <script src="lib/TouchEvents.js"></script>
+
+    <script src="lib/DrawToolbar.js"></script>
+    <script src="lib/Draw.Feature.js"></script>
+    <script src="lib/Draw.SimpleShape.js"></script>
+    <script src="lib/Draw.Polyline.js"></script>
+    <script src="lib/Draw.Circle.js"></script>
+    <script src="lib/Draw.Marker.js"></script>
+    <script src="lib/Draw.Polygon.js"></script>
+    <script src="lib/Draw.Rectangle.js"></script>
+
+
+    <script src="lib/EditToolbar.js"></script>
+    <script src="lib/EditToolbar.Edit.js"></script>
+    <script src="lib/EditToolbar.Delete.js"></script>
+
+    <script src="lib/Control.Draw.js"></script>
+
+    <script src="lib/Edit.Poly.js"></script>
+    <script src="lib/Edit.SimpleShape.js"></script>
+    <script src="lib/Edit.Circle.js"></script>
+    <script src="lib/Edit.Rectangle.js"></script>
+    <script src="lib/Edit.Marker.js"></script>
+</head>
+<body>
+<div id="map" style="width: 800px; height: 600px; border: 1px solid #ccc"></div>
+<script src="lib/socket.io.2.0.1.min.js"></script>
+<script src="lib/jquery.3.2.1.min.js"></script>
+<script>
+	var _chorusConfig = {
+		nav: true,
+		display: 0,
+		displayBtn: true,
+		pushBtn: true
+	}
+</script>
+<script src="client/chorus.js"></script>
+<script>
+    var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            osm = L.tileLayer(osmUrl, { maxZoom: 18, attribution: osmAttrib }),
+            map = new L.Map('map', { center: new L.LatLng(51.505, -0.04), zoom: 13 }),
+            drawnItems = L.featureGroup().addTo(map);
+    L.control.layers({
+        'osm': osm.addTo(map),
+        "google": L.tileLayer('http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
+            attribution: 'google'
+        })
+    }, { 'drawlayer': drawnItems }, { position: 'topleft', collapsed: false }).addTo(map);
+    map.addControl(new L.Control.Draw({
+        edit: {
+            featureGroup: drawnItems,
+            poly: {
+                allowIntersection: false
+            }
+        },
+        draw: {
+            polygon: {
+                allowIntersection: false,
+                showArea: true
+            }
+        }
+    }));
+
+    map.on(L.Draw.Event.CREATED, function (event) {
+        var layer = event.layer;
+
+        drawnItems.addLayer(layer);
+    });
+
+</script>
+</body>
+</html>

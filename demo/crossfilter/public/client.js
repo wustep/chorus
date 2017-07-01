@@ -105,7 +105,7 @@ $(function() {
 					d.substring(6, 8));
 		}
 
-		window.filter = function(filters, pushMain=true) { // CHORUS: pushMain is added here; this is used down in gen() so it doesn't push unnecessarily 
+		window.filter = function(filters, pushMain=true) { // CHORUS: pushMain boolean is added here; this is used down in gen() so it doesn't push unnecessarily 
 			filters.forEach(function(d, i) { charts[i].filter(d); });
 			renderAll();
 			if (pushMain && $("#chorus-display").attr("value") === "main") { // CHORUS: Send to Main displays on update, if Main
@@ -344,7 +344,7 @@ $(function() {
 					updateData(id, brush.extent()); // CHORUS: Update data on filter here and on null
 					dimension.filterRange(_);
 				} else {
-					updateData(id, null);
+					updateData(id, null); 
 					brush.clear();
 					dimension.filterAll();
 				}
@@ -392,6 +392,7 @@ $(function() {
 			}
 		});
 		function gen(data) { // uses provieded window.filter
+			console.log(data);
 			if (data[3] !== null) data[3] = [new Date(data[3][0]), new Date(data[3][1])];
 			filter(data, false);
 		}
