@@ -61,14 +61,14 @@
     var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             osm = L.tileLayer(osmUrl, { maxZoom: 18, attribution: osmAttrib }),
-            map = new L.Map('map', { center: new L.LatLng(51.505, -0.04), zoom: 13 }),
+            map = new L.Map('map', { center: new L.LatLng(39.9612, -82.9988), zoom: 13 }),
             drawnItems = L.featureGroup().addTo(map);
     L.control.layers({
         'osm': osm.addTo(map),
         "google": L.tileLayer('http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
             attribution: 'google'
         })
-    }, { 'drawlayer': drawnItems }, { position: 'topleft', collapsed: false }).addTo(map);
+    }, { 'draws': drawnItems }, { position: 'topleft', collapsed: false }).addTo(map);
     map.addControl(new L.Control.Draw({
         edit: {
             featureGroup: drawnItems,
@@ -86,10 +86,69 @@
 
     map.on(L.Draw.Event.CREATED, function (event) {
         var layer = event.layer;
-
         drawnItems.addLayer(layer);
     });
 
+	/* Chrous part here */
+	$(function() {
+		var _data = [new L.LatLng(39.9612, -82.9988), 13, []]; // Default to Columbus
+
+		var socket = io();
+		socket.emit('get data');
+		socket.on("get data", function (data) {
+			gen(data);
+		});
+		socket.on("generate data", function() { // Generate default data
+			socket.emit("generate data", _data); 
+		});
+		socket.on("render all", function (data) {
+			gen(data);
+		});
+		socket.on("render main", function (data) {
+			if (!_chorusConfig.display) { gen(data); }
+		});
+		
+		var generating = false;
+		map.on('movestart', function(e) {
+			$("#chorus-push").prop("disabled",true); // Disable push button while moving
+		});
+		map.on('moveend', function(e) {
+			updateData();
+			if (generating) {
+				generating = false;
+			} else {			
+				if ($("#chorus-display").attr("value") === "main") { 
+					socket.emit("command", {name: "pushMain", params: { data: _data } });
+				}
+			}
+			$("#chorus-push").prop("disabled", false); // Enable push again
+		});
+
+		$("#chorus-display").on("click", function() {
+			if ($(this).attr("value") === "main") {
+				socket.emit('get data');
+			}
+		});
+		$("#chorus-push").on("click", function() {
+			if ($(this).attr("value") === "main") {
+				socket.emit("command", {name: "pushMain", params: { data: _data } });
+			} else {
+				socket.emit("command", {name: "pushAll", params: { data: _data } });
+			}
+		});
+		
+		function gen(data) { 
+			if (data && data.length >= 2) {
+				generating = true;
+				map.setView(data[0], data[1]);
+			}
+		}
+		
+		function updateData() { // Store center, zoom, and objects
+			_data[0] = map.getBounds().getCenter();
+			_data[1] = map.getZoom();
+		}
+	});	
 </script>
 </body>
 </html>
