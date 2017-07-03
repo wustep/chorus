@@ -42,7 +42,7 @@ L.GeometryUtil = L.extend(L.GeometryUtil || {}, {
 	// @method formattedNumber(n, precision): string
 	// Returns n in specified number format (if defined) and precision
 	formattedNumber: function (n, precision) {
-		var formatted = n.toFixed(precision),
+		var formatted = parseFloat(n).toFixed(precision), // CHORUS DEMO: Added parseFloat here, see https://stackoverflow.com/q/4937251
 			format = L.drawLocal.format && L.drawLocal.format.numeric,
 			delimiters = format && format.delimiters,
 			thousands = delimiters && delimiters.thousands,
