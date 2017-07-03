@@ -254,11 +254,11 @@
 	
 	function geoJSON2(i) { // GeoJSON Circle hack from https://github.com/Leaflet/Leaflet.draw/issues/390
 		return L.geoJSON(i, {
-				pointToLayer: function(feature, latlng) {
+			pointToLayer: function(feature, latlng) {
 				if (feature.properties.radius) {
 					return new L.Circle(latlng, feature.properties.radius);
 				}
-				return;
+				return L.geoJSON(i);
 			}
 		});
 	}
