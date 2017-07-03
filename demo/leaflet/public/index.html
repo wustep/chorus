@@ -69,7 +69,7 @@
             attribution: 'google'
         })
     }, { 'draws': drawnItems }, { position: 'topleft', collapsed: false }).addTo(map);
-    map.addControl(new L.Control.Draw({ // TODO: fix circle sync
+    map.addControl(new L.Control.Draw({
         edit: {
             featureGroup: drawnItems,
             poly: {
@@ -179,12 +179,12 @@
 		});
 	});
 	
-	function gen(data, fresh=false) { 
+	function gen(data, fresh=false) { // Draw map objects and set view to stored data
 		if (data && data.length == 6) { // TODO: Better validation?
 			generating = true;
 			map.setView(data[0], data[1]);
-			if (fresh && data[2]["features"] && data[2]["features"].length > 0) { // Fresh generate, from default map or swap view button
-				drawnItems.remove();
+			if (fresh) { // Fresh generate, from default map or swap view button
+				drawnItems.clearLayers();
 				for (item in data[2]["features"]) {
 					var i = data[2]["features"][item];
 					drawnItems.addLayer(geoJSON2(i));
@@ -203,7 +203,7 @@
 		}
 	}
 	
-	function updated(newData, oldData, id) { // Check if id is added (1), edited (2), or deleted (3), or none (0).
+	function updated(newData, oldData, id) { // Check if id is added (1), edited (2), or deleted (3), or none (0). TODO: optimization?
 		// Check deleted first, as that is priority, then edited, then added.
 		var ans = 0;
 		for (var i = 0; !ans && i < newData[5].length; i++) { // Recently Deleted
@@ -239,12 +239,12 @@
 		_data[2] = toGeoJSON(drawnItems);
 	}
 	
-	function toGeoJSON(items) { // Use toGeoJSON but preserve IDs
+	function toGeoJSON(items) { // Use toGeoJSON but preserve IDs and radii
 		var result = items.toGeoJSON();
 		var i = 0;
 		for (item in items["_layers"]) {
 			result["features"][i].id = items["_layers"][item].id; // Copy IDs from drawnItems
-			if (items["_layers"][item]._radius) { // Transfer radii for circles since geoJSON does not support
+			if (items["_layers"][item]._radius) { // Transfer radii for circles since geoJSON does not normally support
 				result["features"][i].properties.radius = items["_layers"][item].getRadius();
 			}
 			i++;
@@ -252,7 +252,7 @@
 		return result;
 	}
 	
-	function geoJSON2(i) { // GeoJSON Circle hack from https://github.com/Leaflet/Leaflet.draw/issues/390
+	function geoJSON2(i) { // Use GeoJSON but convert circles https://github.com/Leaflet/Leaflet.draw/issues/390
 		return L.geoJSON(i, {
 			pointToLayer: function(feature, latlng) {
 				if (feature.properties.radius) {
