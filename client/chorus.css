@@ -53,6 +53,14 @@
 	background-color: transparent;
 }
 
+#chorus-push:disabled {
+    user-select : none;
+    -moz-user-select : none;
+    -webkit-user-select : none;
+    color: red !important;
+    cursor: pointer !important;
+}
+
 #chorus-nav > #chorus-push {
 	margin-left: 10px;
 	color: #fff;
