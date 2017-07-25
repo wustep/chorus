@@ -38,6 +38,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		chorus.on("push main", function (data) {
 			if (!display) { 
 				chorusRender(data);
+				_data = data;
 			}
 		});
 			

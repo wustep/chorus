@@ -208,7 +208,7 @@
 <script src="../../chorus/chorus.js"></script>
 <script>
 	$(function () {
-		$("#chorus-display").on("click", function() {
+		$("#chorus-nav").on("click", "#chorus-display", function() {
 			if ($(this).attr("value") !== "main") { // Swapping Main -> Aux, kill recently lists
 				_data[3] = [];
 				_data[4] = [];
@@ -216,7 +216,7 @@
 			}
 		});
 		
-		$("#chorus-push").on("click", function() {
+		$("#chorus-nav").on("click", "#chorus-push", function() {
 			if ($(this).attr("value") !== "main") { // Pushing Aux -> Main, kill recently lists
 				_data[3] = [];
 				_data[4] = [];
