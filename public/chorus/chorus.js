@@ -1,12 +1,13 @@
 if (typeof jQuery == 'undefined') { // TODO: Add versions here
-	console.error("jQuery is not loaded and is required for Chorus!");
+	console.error("[Chorus] jQuery is not loaded and is required!");
 } else if (typeof io == 'undefined') {
-	console.error("Socket.io is not loaded and is required for Chorus!");
-} else if (typeof _data == 'undefined' || typeof chorusRender != 'function' || typeof chorusUpdate == 'function') {
-	console.error("_data, chorusRender(), or chorusUpdate() are not properly set.");
-	console.error("_data must exist as a serializable object or variable, containing the data store.");
-	console.error("chorusRender() must be a function that exists and renders the viz accordingly based on _data.")
-	console.error("chorusUpdate() must not be a used function.")
+	console.error("[Chorus] Socket.io is not loaded and is required!");
+} else if (typeof _data == 'undefined') {
+	console.error("[Chorus] _data must exist as a global serializable object or variable, containing the data store.");
+} else if (typeof chorusRender != 'function') {
+	console.error("[Chorus] chorusRender() must be a global function that exists and renders the viz accordingly based on _data.");
+} else if (typeof chorusUpdate == 'function') {
+	console.error("[Chorus] chorusUpdate() must not be an existing global function.")
 } else {
 	let chorus = io();
 	let display = -1; // -1 = neither, 0 = main, 1 = detached
@@ -81,7 +82,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 			$("#chorus-nav").html(navMain);
 			$("#chorus-room-number").html(room);
 			_data = data;
-			chorusRender(data);
+			chorusRender(data, true);
 		});		
 		chorus.on("follow failure", function() {
 			alert("Follow failed, invalid room: " + room);
