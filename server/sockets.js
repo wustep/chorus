@@ -1,87 +1,83 @@
 const socketIO = require('socket.io');
 
-const gen = require("../" + process.env.server);
+// TODO: Add option for additional server commands (like chorus.v0) or 
+let generated = false;
+let rooms = new Map();
+let _data = [];
 
-const _generateOnServer = gen._generateOnServer; // TODO: Better way for user to decide whether to generate data on server or client
-
-var _generated = false;
-if (_generateOnServer) { // If generateOnServer is set, generate data
-	gen.create(function(err, data) { 
-		if (err) {
-			console.log("[Error] Generating data: " + err); 
-			return;
-		}
-		log("Generated data on server");
-		_generated = true;
-	});
-}
-
-function log(msg, force) { // Log if debug set in .env or force parameter is set
+function log(room, id, msg, force) { // Log if debug set in .env or force parameter is set
 	if (process.env.debug === 'true' || force) {
-		console.log(msg);
+		let roomNum = "";
+		if (room != null) roomNum = `[${room}] `; // Exclude room in logs when room is yet to be set
+		console.log(`${roomNum}[${id}] ${msg}`);
 	}
 }
 
 module.exports = { 
 	start: (server) => {
-		var io = socketIO(server);
+		const io = socketIO(server);
 
-		io.on('connection', (socket) => {
-			log("Client connected");
+		io.on('connect', (socket) => {
+			log(null, socket.conn.id, 'Connected');
+
+			socket.on('follow', (room) => {
+				let data = rooms.get(room);
+				let result = "failed";
+				if (data !== undefined) {
+					socket.join(room);
+					result = "success";
+					socket.emit('follow success', _data);
+				} else {
+					socket.emit('follow failure');
+				}
+				log(null, socket.conn.id, "Follow " + room + ": " + result);
+			});
 			
-			if (!_generateOnServer) { // Generate on client if generateOnServer is false
-				socket.on('generate data', (data) => { 
-					if (!_generated) {
-						log("Generated data on server from client");
-						gen._data = data;
-						_generated = true;
-					} else {
-						console.log("[Note] Client generated data but it was already generated");
-					}
-				});
-			}
+			socket.on('cast', (params) => {
+				// TODO: Add failure on params here (i.e. room / data not set)
+				// TODO: Change ERR to something else here and at chorus.js
+				let result = "failed";
+				if (params.room != "ERR" && rooms.get(params.room) === undefined) {
+					rooms.set(params.room, params.data);
+					result = "success";
+					socket.emit("cast success");
+				} else {
+					socket.emit("cast failure");
+				}
+				log(null, socket.conn.id, "Cast " + params.room + ": " + result);
+			});
+			
+			socket.on('create room', (room) => {
+				rooms.set(room, []);
+			});
+			
+			socket.on('get rooms', (room) => {
+				// Rooms coming soon
+			});
+
+			socket.on('generate data', (data) => {
+				_data = data;
+				log(data.room, socket.id, "Replaced room data with client copy")
+			});
 			
 			socket.on('get data', () => { // Get data request, only done once per client
-				if (_generated) { // Send data to client
-					log("Client data request. Sending data to client.")
-					socket.emit('get data', gen._data); 
-				} else if (!_generateOnServer) { // Generate on client because not generated yet
-					log("Client data request. Sending generate data request to client.")
-					socket.emit('generate data');
-				} else {
-					console.error("[Error] Client attempted to obtain data but it was not generated on server yet")
+				if (genderated) { // Send data to client
+					log(data.room, socket.id, "Client data request. Sending data to client.")
+					socket.emit('get data', _data); 
 				}
 			});
 			
-			socket.on('command', (d) => { 
-				if ("name" in d && d.name in gen._commands) { // Valid command
-					const props = gen._commands[d.name];
-					if (!props.requireGenerated || (props.requireGenerated && _generated)) { // Check if data was generated if needed
-						if (typeof d.params == "undefined") d.params = []; // Prevents undefined error.
-						gen[d.name](d.params, function (err, data) { // TODO: How to deal with malicious sockets input?
-							if (err) {
-								log("[Error] " + err);
-								return;
-							} else {
-								var add = ""; // Additional console info
-								if (props.emitSender) { // TODO: Add option to decide what data to emit with command?
-									socket.emit(props.emit, data);
-									add += " Sending command (" + props.emit + ") to client.";
-								}
-								if (props.emitBroadcast) {
-									socket.broadcast.emit(props.emit, data);
-									add += " Broadcasting command (" + props.emit + ") to all other clients.";
-								}
-								log("Command (" + d.name + ") done." + add);
-							}
-						}); // Definitely needs more security/validation for live
-					} else {
-						 console.error("[Error] Client attempted command (" + d.name + ") that required data generation, but data was not generated yet.")
-					}
-				} else {
-					console.error("[Error] Client attempted undefined command (" + d.name + ")");
-				}
+			socket.on('push to main', (data) => {
+				socket.to(socket.room).emit('push to main', data);
+				log(data.room, socket.id, "Pushing to main.");
 			});
+
+			socket.on('push to all', (data) => {
+				socket.to(socket.room).emit('push to all', data);
+				log(data.room, socket.id, "Pushing to all.");
+			});
+			
+			// TODO: Re-add custom commands later in a way that makes sense..
 		});
 	}
-};
+}

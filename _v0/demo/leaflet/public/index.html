@@ -65,7 +65,7 @@
             drawnItems = L.featureGroup().addTo(map);
     L.control.layers({ // TODO: Fix removeAllLayers button on edit
         'osm': osm.addTo(map),
-        "google": L.tileLayer('http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
+        "google": L.tileLayer('http://www.google.com/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
             attribution: 'google'
         })
     }, { 'draws': drawnItems }, { position: 'topleft', collapsed: false }).addTo(map);

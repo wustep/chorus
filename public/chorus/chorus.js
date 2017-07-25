@@ -1,0 +1,98 @@
+if (typeof jQuery == 'undefined') { // TODO: Add versions here
+	console.error("jQuery is not loaded and is required for Chorus!");
+} else if (typeof io == 'undefined') {
+	console.error("Socket.io is not loaded and is required for Chorus!");
+} else if (typeof _data == 'undefined' || typeof chorusRender != 'function' || typeof chorusUpdate == 'function') {
+	console.error("_data, chorusRender(), or chorusUpdate() are not properly set.");
+	console.error("_data must exist as a serializable object or variable, containing the data store.");
+	console.error("chorusRender() must be a function that exists and renders the viz accordingly based on _data.")
+	console.error("chorusUpdate() must not be a used function.")
+} else {
+	let chorus = io();
+	let display = -1; // -1 = neither, 0 = main, 1 = detached
+	
+	function chorusUpdate() {
+		if (display == 0) chorus.emit("push main", _data);
+	}
+	$(function() {		
+		var nav = $("<nav id='chorus-nav'></nav>");
+		var navNone = $("<nav id='chorus-nav'><button id='chorus-cast'>Cast</button> <button id='chorus-follow'>Follow</button></nav>");
+		var navMain = $("<button id='chorus-display' value='main'>Detach</button> <button id='chorus-push' value='main'>Push to All</button></nav> <button id='chorus-exit'>Exit</button> <span id='chorus-room'>Room: <span id='chorus-room-number'></span></span>");
+		var navAux = $("<button id='chorus-display' value='aux'>Attach</button> <button id='chorus-push' value='main'>Push to Main</button></nav> <button id='chorus-exit'>Exit</button> <span id='chorus-room'>Room: <span id='chorus-room-number'></span></span>");
+		var room = "ERR";
+
+		$("body").append(nav)
+		$("#chorus-nav").html(navNone);
+		
+		// Cast button
+		$("#chorus-nav").on("click", "#chorus-cast", function() {
+			var roomPrompt = prompt("Create room?");
+			if (roomPrompt != null && roomPrompt.length > 0) {
+				room = roomPrompt;
+				chorus.emit("cast", { room: roomPrompt, data: _data });
+				$("#chorus-cast").prop("disabled", true);
+				$("#chorus-follow").prop("disabled", true);
+			}
+		});
+		
+		// Cast success/failure
+		chorus.on("cast success", function() {
+			display = 0;
+			$("#chorus-nav").html(navMain);
+			$("#chorus-room-number").html(room);
+		});		
+		chorus.on("cast failure", function() {
+			alert("Cast failed, invalid or existing room: " + room);
+			room = "ERR";
+			$("#chorus-cast").prop("disabled", false);
+			$("#chorus-follow").prop("disabled", false);
+		});
+		
+		// Follow button
+		$("#chorus-nav").on("click", "#chorus-follow", function() {
+			var roomPrompt = prompt("Follow room?");
+			if (roomPrompt != null && roomPrompt.length > 0) {
+				room = roomPrompt;
+				chorus.emit("follow", roomPrompt);
+				$("#chorus-cast").prop("disabled", true);
+				$("#chorus-follow").prop("disabled", true);
+			}
+		});
+		
+		// Follow success/failure
+		chorus.on("follow success", function(data) {
+			display = 0;
+			$("#chorus-nav").html(navMain);
+			$("#chorus-room-number").html(room);
+			if (data && data.length > 0) {
+				_data = data;
+				chorusRender(data);
+			}
+		});		
+		chorus.on("follow failure", function() {
+			alert("Follow failed, invalid room: " + room);
+			room = "ERR";
+			$("#chorus-cast").prop("disabled", false);
+			$("#chorus-follow").prop("disabled", false);
+		});
+
+		// Display button
+		$("#chorus-nav").on("click", "#chorus-display", function() {
+			display = 1 - display; // swap 1 to 0 and vice-versa
+			if (!display) {
+				$("#chorus-nav").html(navMain);
+			} else {
+				$("#chorus-nav").html(navAux);
+			}
+			$("#chorus-room-number").html(room);
+		});
+
+		// Exit button
+		$("#chorus-nav").on("click", "#chorus-exit", function() {
+			display = -1;
+			$("#chorus-nav").html(navNone);
+			$("#chorus-cast").prop("disabled", false);
+			$("#chorus-follow").prop("disabled", false);
+		});
+	});
+}
