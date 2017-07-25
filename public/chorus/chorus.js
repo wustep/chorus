@@ -19,7 +19,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 	$(function() {		
 		var nav = $("<nav id='chorus-nav'></nav>");
 		var navNone = $("<nav id='chorus-nav'><button id='chorus-cast'>Cast</button> <button id='chorus-follow'>Follow</button></nav>");
-		var navMain = $("<button id='chorus-display' value='main'>Detach</button> <button id='chorus-push' value='main'>Push to All</button></nav> <button id='chorus-exit'>Exit</button> <span id='chorus-room'>Room: <span id='chorus-room-number'></span></span>");
+		var navMain = $("<button id='chorus-display' value='main'>Detach</button> <button id='chorus-push' value='main'>Push to All</button></nav> <button id='chorus-exit'><span id='chorus-room'>Room: <span id='chorus-room-number'></span></span></button>");
 		var navAux = $("<button id='chorus-display' value='aux'>Return to Main</button> <button id='chorus-push' value='main'>Push to Main</button></nav> <button id='chorus-exit'>Exit</button> <span id='chorus-room'>Room: <span id='chorus-room-number'></span></span>");
 		var room = "ERR";
 
