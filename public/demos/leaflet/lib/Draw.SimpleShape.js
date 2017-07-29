@@ -37,6 +37,10 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 				.on('mousemove', this._onMouseMove, this)
 				.on('touchstart', this._onMouseDown, this)
 				.on('touchmove', this._onMouseMove, this);
+				
+			// BUGFIX See: https://github.com/Leaflet/Leaflet.draw/pull/680	
+			document.addEventListener('touchstart', L.DomEvent.preventDefault, {passive: false});
+
 		}
 	},
 
@@ -60,6 +64,9 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 
 			L.DomEvent.off(document, 'mouseup', this._onMouseUp, this);
 			L.DomEvent.off(document, 'touchend', this._onMouseUp, this);
+
+			// BUGFIX See: https://github.com/Leaflet/Leaflet.draw/pull/680
+			document.removeEventListener('touchstart', L.DomEvent.preventDefault);
 
 			// If the box element doesn't exist they must not have moved the mouse, so don't need to destroy/return
 			if (this._shape) {
