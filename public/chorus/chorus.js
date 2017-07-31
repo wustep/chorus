@@ -4,12 +4,12 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 	console.error("[Chorus] Socket.io is not loaded and is required!");
 } else if (typeof _data == 'undefined') {
 	console.error("[Chorus] _data must exist as a global serializable object or variable, containing the data store.");
-} else if (typeof chorusRender != 'function') {
+/*} else if (typeof chorusRender != 'function') {
 	console.error("[Chorus] chorusRender() must be a global function that exists and renders the viz accordingly based on _data.");
-} else if (typeof chorusUpdate == 'function') {
-	console.error("[Chorus] chorusUpdate() must not be an existing global function.")
+} else if (typeof chorusUpdate == 'function') { 
+	console.error("[Chorus] chorusUpdate() must not be an existing global function.");*/
 } else {
-	let chorus = io();
+	let chorus = io("http://localhost:3000");
 	let display = -1; // -1 = neither, 0 = main, 1 = detached
 	
 	function chorusUpdate() {
