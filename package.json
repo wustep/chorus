@@ -4,12 +4,13 @@
   "description": "",
   "main": "server/server.js",
   "repository": {
-  	"type": "git",
-  	"url": "https://github.com/datateam/dream"
+    "type": "git",
+    "url": "https://github.com/datateam/dream"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server/server.js"
+    "start": "node server/server.js",
+    "nodemon": "nodemon server/server.js"
   },
   "author": "",
   "license": "",
@@ -19,6 +20,7 @@
     "dotenv": "^4.0.0",
     "express": "^4.15.2",
     "hbs": "^4.0.1",
+    "nodemon": "^1.11.0",
     "socket.io": "^2.0.1"
   }
 }
