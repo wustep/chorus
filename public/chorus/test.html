@@ -9,12 +9,15 @@
 <button id="add" onClick=add()>Add</button>
 <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.2/socket.io.js"></script>
+<script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
 <script>
 	var _data = 0;
 	// Rules: 	1. Keep important data in _data.
 	// 			2. Run chorusUpdate() whenever data is updated.
 	//			3. Create chrousRender(data, fresh) that renders _data accordingly (fresh = boolean for first time). 
-
+	//			4. Set chorusChromecast to true if you want the chromecast button
+	var chorusChromecast = true;
+	
 	function chorusRender(data) {
 		$("#main").html(data);
 		_data = data;
