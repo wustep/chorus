@@ -76,9 +76,9 @@
 
 		// Process link and room
 		function process(data) {
-			console.log(data);
+			var parsed = JSON.parse(data);
 			window.castReceiverManager.setApplicationState('Processed');
-			document.getElementById('chorus-body').src = data.url;
+			document.getElementById('chorus-body').src = parsed.url;
 			//document.getElementById('chorus-body').document.getElementById('chorus-nav').remove();
 		};
 	</script>

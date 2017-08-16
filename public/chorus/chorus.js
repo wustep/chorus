@@ -22,7 +22,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		var chromeCasting = false; // Set to 1 when following with Chromecast button			
 
 		/* Chorus - Chromecast */
-		if (chorusChromecast && typeof(chrome.cast) !== undefined) { 
+		if (typeof(chorusChromecast) !== undefined && chorusChromecast && typeof(chrome.cast) !== undefined) { 
 			navNone.append(" <button id='chorus-chromecast-follow' disabled='true'>Chromecast</button>");
 			var applicationID = '7FF6442F';
 			var namespace = 'urn:x-cast:edu.ohio-state.cse.chorus';
@@ -109,7 +109,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 					chromeCasting = false;
 				}	
 			}				
-		} else if (chorusChromecast) {
+		} else if (typeof(chorusChromecast) !== undefined) {
 			console.error("[Chorus] ChorusChromecast was requested but cast sender / receiver APIs were not included");
 			chorusChromecast = false;
 		} else {
