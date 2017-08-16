@@ -19,10 +19,12 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 	$(function() {      
 		var nav = $("<nav id='chorus-nav'></nav>");
 		var navNone = $("<nav id='chorus-nav'><button id='chorus-cast'>Cast</button> <button id='chorus-follow'>Follow</button></nav>");
+		var chorusChromecasting = false;
 		var chromeCasting = false; // Set to 1 when following with Chromecast button			
 
 		/* Chorus - Chromecast */
-		if (typeof(chorusChromecast) !== undefined && chorusChromecast && typeof(chrome.cast) !== undefined) { 
+		if (typeof(chorusChromecast) !== "undefined" && chorusChromecast && typeof(chrome.cast) !== "undefined") { 
+			chorusChromecasting = true;
 			navNone.append(" <button id='chorus-chromecast-follow' disabled='true'>Chromecast</button>");
 			var applicationID = '7FF6442F';
 			var namespace = 'urn:x-cast:edu.ohio-state.cse.chorus';
@@ -109,11 +111,11 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 					chromeCasting = false;
 				}	
 			}				
-		} else if (typeof(chorusChromecast) !== undefined) {
+		} else if (typeof(chorusChromecast) !== "undefined") {
 			console.error("[Chorus] ChorusChromecast was requested but cast sender / receiver APIs were not included");
-			chorusChromecast = false;
+			chorusChromecasting = false;
 		} else {
-			chorusChromecast = false;
+			chorusChromecasting = false;
 		}
 		var navMain = $("<button id='chorus-display' value='main'>Detach</button> <button id='chorus-push' value='main'>Push to All</button></nav> <button id='chorus-exit'><span id='chorus-room'>Room: <span id='chorus-room-number'></span></span></button>");
 		var navAux = $("<button id='chorus-display' value='aux'>Return to Main</button> <button id='chorus-push' value='main'>Push to Main</button></nav> <button id='chorus-exit'><span id='chorus-room'>Room: <span id='chorus-room-number'></span></button></span>");
@@ -123,7 +125,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		$("#chorus-nav").html(navNone);
 		
 		/* Chorus - Chromecast sender logic */
-		if (chorusChromecast) {
+		if (chorusChromecasting) {
 			$("#chorus-nav").on("click", "#chorus-chromecast-follow", function () {
 				chromeCasting = true;
 				followPrompt();
