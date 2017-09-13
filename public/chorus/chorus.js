@@ -11,15 +11,16 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 } else {
 	let chorus = io();
 	let display = -1; // -1 = neither, 0 = main, 1 = detached
+	let room = "ERR";
 	
 	function chorusUpdate() {
 		if (display == 0) chorus.emit("push main", _data);
 	}
 	
 	// Chorus follow, used for Chromecast receiver to access
-	function chorusChromecastFollow(room) { 
-		chorus.emit("follow", room);
-		alert("Chromecast attempted follow!");
+	function chorusChromecastFollow(r) { 
+		chorus.emit("follow", r);
+		room = r;
 	}
 
 	$(function() {      
@@ -125,7 +126,6 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		}
 		var navMain = $("<button id='chorus-display' value='main'>Detach</button> <button id='chorus-push' value='main'>Push to All</button></nav> <button id='chorus-exit'><span id='chorus-room'>Room: <span id='chorus-room-number'></span></span></button>");
 		var navAux = $("<button id='chorus-display' value='aux'>Return to Main</button> <button id='chorus-push' value='main'>Push to Main</button></nav> <button id='chorus-exit'><span id='chorus-room'>Room: <span id='chorus-room-number'></span></button></span>");
-		var room = "ERR";
 
 		$("body").append(nav)
 		$("#chorus-nav").html(navNone);
@@ -194,7 +194,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 				$("#chorus-cast").prop("disabled", true);
 				$("#chorus-follow").prop("disabled", true);
 				$("#chorus-chromecast-follow").prop("disabled", true);
-				sendMessage(); // TODO: For some reason, this can't be in Chorus.on("Follow success"). Not sure why, but this leads to some weird interactions.
+				if (chromeCasting) sendMessage(); // TODO: For some reason, this can't be in Chorus.on("Follow success"). Not sure why, but this leads to some weird interactions.
 			} else {
 				chromeCasting = false;
 			}
