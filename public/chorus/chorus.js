@@ -16,13 +16,6 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 	function chorusUpdate() {
 		if (display == 0) chorus.emit("push main", _data);
 	}
-	
-	// Chorus follow, used for Chromecast receiver to access
-	function chorusChromecastFollow(r) { 
-		chorus.emit("follow", r);
-		room = r;
-	}
-
 	$(function() {      
 		var nav = $("<nav id='chorus-nav'></nav>");
 		var navNone = $("<nav id='chorus-nav'><button id='chorus-cast'>Cast</button> <button id='chorus-follow'>Follow</button></nav>");
@@ -126,6 +119,26 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		}
 		var navMain = $("<button id='chorus-display' value='main'>Detach</button> <button id='chorus-push' value='main'>Push to All</button></nav> <button id='chorus-exit'><span id='chorus-room'>Room: <span id='chorus-room-number'></span></span></button>");
 		var navAux = $("<button id='chorus-display' value='aux'>Return to Main</button> <button id='chorus-push' value='main'>Push to Main</button></nav> <button id='chorus-exit'><span id='chorus-room'>Room: <span id='chorus-room-number'></span></button></span>");
+
+		function getParameterByName(name, url) {
+			if (!url) url = window.location.href;
+			name = name.replace(/[\[\]]/g, "\\$&");
+			var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+				results = regex.exec(url);
+			if (!results) return null;
+			if (!results[2]) return '';
+			return decodeURIComponent(results[2].replace(/\+/g, " "));
+		}
+			
+		// Chorus follow, used for Chromecast receiver to access
+		let followRoom = getParameterByName("chorusFollowRoom");
+		if (followRoom) { // If GET chorusFollowRoom is specified, just go there
+			chromeCasting = false;
+			chorus.emit("follow", followRoom);
+			navMain = $("<button id='chorus-exit'><span id='chorus-room'>Room: <span id='chorus-room-number'></span></button>");
+			navAux = navMain;
+			room = followRoom;
+		}
 
 		$("body").append(nav)
 		$("#chorus-nav").html(navNone);

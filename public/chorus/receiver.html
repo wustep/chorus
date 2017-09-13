@@ -15,7 +15,11 @@
 </head>
 <body>
 	<div id="content">
-		<iframe id="chorus-body" width="100%" height="100%" frameborder="0">
+		<form id="chorus-cast-form" target="chorus-body" method="get">
+			<input type="hidden" id="chorus-follow-room" name="chorusFollowRoom" value="ERR"/>
+		</form>
+
+		<iframe id="chorus-body" name="chorus-body" width="100%" height="100%" frameborder="0">
 		</iframe>
 	</div>
  	<script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js"></script>
@@ -42,13 +46,14 @@
 				console.log(window.castReceiverManager.getSender(event.data).userAgent);
 			};
 
+			// With this code enabled, the Chromecast will stop casting upon sender disconnect
 			// handler for 'senderdisconnected' event
-			castReceiverManager.onSenderDisconnected = function(event) {
+			/*castReceiverManager.onSenderDisconnected = function(event) {
 				console.log('Received Sender Disconnected event: ' + event.data);
 				if (window.castReceiverManager.getSenders().length == 0) {
 					window.close();
 				}
-			};
+			};*/
 
 			// handler for 'systemvolumechanged' event
 			castReceiverManager.onSystemVolumeChanged = function(event) {
@@ -78,14 +83,9 @@
 		function process(data) {
 			var parsed = JSON.parse(data);
 			window.castReceiverManager.setApplicationState('Processed');
-			document.getElementById('chorus-body').src = parsed.url;
-			setTimeout(function (){ // TODO: Timeouts are hacky, improve later
-				console.log("Trying follow...."); 
-				document.getElementById('chorus-body').contentWindow.chorusChromecastFollow(parsed.room);		
-				setTimeout(function() {
-					document.getElementById('chorus-body').contentDocument.getElementById('chorus-display').remove();document.getElementById('chorus-body').contentDocument.getElementById('chorus-push').remove();
-				}, 1000);
-			}, 1000);
+			document.getElementById('chorus-cast-form').action = parsed.url;
+			document.getElementById('chorus-follow-room').value = parsed.room;
+			document.getElementById('chorus-cast-form').submit();
 		}
 	</script>
 </body>
