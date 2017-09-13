@@ -15,15 +15,21 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 	function chorusUpdate() {
 		if (display == 0) chorus.emit("push main", _data);
 	}
+	
+	// Chorus follow, used for Chromecast receiver to access
+	function chorusChromecastFollow(room) { 
+		chorus.emit("follow", room);
+		alert("Chromecast attempted follow!");
+	}
 
 	$(function() {      
 		var nav = $("<nav id='chorus-nav'></nav>");
 		var navNone = $("<nav id='chorus-nav'><button id='chorus-cast'>Cast</button> <button id='chorus-follow'>Follow</button></nav>");
-		var chorusChromecasting = false;
+		var chorusChromecasting = false; // "chorusChromecast" is used to enable chromecast, chromecasting is the internal var, TODO: Simplify
 		var chromeCasting = false; // Set to 1 when following with Chromecast button			
 
 		/* Chorus - Chromecast */
-		if (typeof(chorusChromecast) !== "undefined" && chorusChromecast && typeof(chrome.cast) !== "undefined") { 
+		if (typeof(chorusChromecast) != 'undefined' && chorusChromecast && typeof(chrome) != 'undefined') { 
 			chorusChromecasting = true;
 			navNone.append(" <button id='chorus-chromecast-follow' disabled='true'>Chromecast</button>");
 			var applicationID = '7FF6442F';
@@ -92,7 +98,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 					console.log('[Chorus Chromecast] Receiver found');
 				} else {
 					console.log('[Chorus Chromecast] Receiver list was empty');
-					alert("[Chorus Chromecast] Error: receiver list was empty.")
+					alert("[Chorus Chromecast] Error: receiver list was empty.");
 				}
 			}
 			function sendMessage() {
@@ -111,8 +117,8 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 					chromeCasting = false;
 				}	
 			}				
-		} else if (typeof(chorusChromecast) !== "undefined") {
-			console.error("[Chorus] ChorusChromecast was requested but cast sender / receiver APIs were not included");
+		} else if (typeof(chorusChromecast) != 'undefined') {
+			console.error("[Chorus] ChorusChromecast was requested but cast sender API was not included");
 			chorusChromecasting = false;
 		} else {
 			chorusChromecasting = false;
@@ -181,7 +187,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		});
 		
 		function followPrompt() { // Used in Chromecast prompt, so made into function
-			var roomPrompt = prompt((chromeCasting ? "Chromecast room?" : "Follow room?"));
+			var roomPrompt = prompt((chromeCasting ? "Chromecast existing room?" : "Follow room?"));
 			if (roomPrompt != null && roomPrompt.length > 0) {
 				room = roomPrompt;
 				chorus.emit("follow", roomPrompt);
@@ -189,6 +195,8 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 				$("#chorus-follow").prop("disabled", true);
 				$("#chorus-chromecast-follow").prop("disabled", true);
 				sendMessage(); // TODO: For some reason, this can't be in Chorus.on("Follow success"). Not sure why, but this leads to some weird interactions.
+			} else {
+				chromeCasting = false;
 			}
 		}
 		

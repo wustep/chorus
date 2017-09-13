@@ -79,8 +79,14 @@
 			var parsed = JSON.parse(data);
 			window.castReceiverManager.setApplicationState('Processed');
 			document.getElementById('chorus-body').src = parsed.url;
-			//document.getElementById('chorus-body').document.getElementById('chorus-nav').remove();
-		};
+			setTimeout(function (){ // TODO: Timeouts are hacky, improve later
+				console.log("Trying follow...."); 
+				document.getElementById('chorus-body').contentWindow.chorusChromecastFollow(parsed.room);		
+				setTimeout(function() {
+					document.getElementById('chorus-body').contentDocument.getElementById('chorus-display').remove();document.getElementById('chorus-body').contentDocument.getElementById('chorus-push').remove();
+				}, 1000);
+			}, 1000);
+		}
 	</script>
 </body>
 </html>

@@ -13,8 +13,6 @@ multiple device data viz coordination with socket.io and express
 
 **Crossfilter**: Flight data
 
-# goal
-- Work with JS-based libraries: leaflet, crossfilter, d3, dc, etc. 
+**Leaflet**: Leaflet.js map and draw tools
 
 # usage
-- For now, to access demos, edit the ENV file and replace "crossfilter" with the desired demo ("tbdbitl", "midi")
