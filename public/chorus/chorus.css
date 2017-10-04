@@ -9,7 +9,7 @@
 	font-family: Helvetica, Arial, Sans-serif;
 }
 
-#chorus-nav > button {
+#chorus-nav button {
 	display: inline-block;
     font-weight: 400;
     line-height: 1.25;
@@ -32,19 +32,19 @@
 	margin: 0 0.25rem;
 }
 
-#chorus-nav > button {
+#chorus-nav button {
 	color: #fff;
     border-color: rgba(0,0,0,.20);
 	background-color: rgba(0,0,0,.20);
 }
 
-#chorus-nav > button:hover {
+#chorus-nav button:hover {
 	color: rgba(0,0,0,.20);
 	background-color: transparent;
 	cursor: pointer;
 }
 
-#chorus-nav > button:disabled {
+#chorus-nav button:disabled {
     user-select : none;
     -moz-user-select : none;
     -webkit-user-select : none;
@@ -53,24 +53,24 @@
     cursor: default !important;
 }
 
-#chorus-nav > #chorus-display[value=main] {
+#chorus-nav #chorus-display[value=main] {
 	color: #fff;
     border-color: #5cb85c;
 	background-color: #5cb85c;
 }
 
-#chorus-nav > #chorus-display[value=main]:hover {
+#chorus-nav #chorus-display[value=main]:hover {
 	color: #5cb85c;
 	background-color: transparent;
 }
 
-#chorus-nav > #chorus-display[value=aux] {
+#chorus-nav #chorus-display[value=aux] {
 	color: #fff;
     border-color: #c30;
 	background-color: #c30;
 }
 
-#chorus-nav > #chorus-display[value=aux]:hover {
+#chorus-nav #chorus-display[value=aux]:hover {
 	color: #c30;
 	background-color: transparent;
 }

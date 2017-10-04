@@ -18,7 +18,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 	}
 	$(function() {      
 		var nav = $("<nav id='chorus-nav'></nav>");
-		var navNone = $("<nav id='chorus-nav'><button id='chorus-cast'>Cast</button> <button id='chorus-follow'>Follow</button></nav>");
+		var navNone = $("<div><button id='chorus-cast'>Cast</button> <button id='chorus-follow'>Follow</button></div>");
 		var chorusChromecasting = false; // "chorusChromecast" is used to enable chromecast, chromecasting is the internal var, TODO: Simplify
 		var chromeCasting = false; // Set to 1 when following with Chromecast button			
 
@@ -139,9 +139,9 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 			navAux = navMain;
 			room = followRoom;
 		}
-
+		
+		nav.html(navNone);
 		$("body").append(nav)
-		$("#chorus-nav").html(navNone);
 		
 		/* Chorus - Chromecast sender logic */
 		if (chorusChromecasting) {
@@ -230,19 +230,19 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		});
 
 		// Display button
-		$("#chorus-nav").on("click", "#chorus-display", function() {
+		nav.on("click", "#chorus-display", function() {
 			display = 1 - display; // swap 1 to 0 and vice-versa
 			if (!display) { // Swapping Aux -> Main
 				chorus.emit("get data")
-				$("#chorus-nav").html(navMain);
+				nav.html(navMain);
 			} else {
-				$("#chorus-nav").html(navAux);
+				nav.html(navAux);
 			}
 			$("#chorus-room-number").html(room);
 		});
 		
 		// Push button
-		$("#chorus-nav").on("click", "#chorus-push", function() {
+		nav.on("click", "#chorus-push", function() {
 			if (!display) { // Pushing Main -> All
 				chorus.emit("push all", _data);
 			} else { // Pushing Main -> All
@@ -251,9 +251,9 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		});
 
 		// Exit button
-		$("#chorus-nav").on("click", "#chorus-exit", function() {
+		nav.on("click", "#chorus-exit", function() {
 			display = -1;
-			$("#chorus-nav").html(navNone);
+			nav.html(navNone);
 			$("#chorus-cast").prop("disabled", false);
 			$("#chorus-follow").prop("disabled", false);
 			$("#chorus-chromecast-follow").prop("disabled", false);
