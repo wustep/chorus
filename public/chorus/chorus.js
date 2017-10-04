@@ -23,7 +23,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		this.render = function() {
 			console.log("[Chorus] Error - chorus.render() function should be implemented!");
 		}
-		this.append = function(obj) {
+		this.append = function(obj="body") {
 			$(obj).append(this.nav);
 		}
 	};
