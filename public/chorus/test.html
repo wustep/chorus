@@ -23,24 +23,33 @@ button#add {
 <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.2/socket.io.js"></script>
 <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
+
+<script src="chorus.js"></script>
 <script>
 	var _data = 0;
-	// Rules: 	1. Keep important data in _data.
-	// 			2. Run chorusUpdate() whenever data is updated.
-	//			3. Create chrousRender(data, fresh) that renders _data accordingly (fresh = boolean for first time). 
-	//			4. Set chorusChromecast to true if you want the chromecast button
-	var chorusChromecast = true;
-	
-	function chorusRender(data) {
+	// Chorus implementation:
+	// 		0. Include chorus.css, jQuery, Socket.io, chorus.js, and Cast_Sender v1 API (if using Chromecast)
+	// 	 	1. Keep relevant data in _data.
+	// 		2. Use chorus.update() whenever data is updated.
+	//		3. Implement chorus.render(data, fresh) that renders _data accordingly (fresh is boolean which is true when rendering data for the first time, optional)
+	//		4. Set chorus.chromecast to true if you want the chromecast button to be generated (before appending)
+	// 		5. Append chorus.nav to appropriate div with chorus.append("div")
+	// 		6. If desired, add handlers to chorus.nav.on(event, obj) with jQuery
+
+	chorus.chromecast = true;
+	chorus.render = function(data) {
 		$("#main").html(data);
 		_data = data;
 	}
+
 	function add() {
 		_data++;
 		$("#main").html(_data);
-		chorusUpdate();
+		chorus.update();
 	}
 </script>
-<script src="chorus.js"></script>
+<script>
+	chorus.append("body");
+</script>
 </body>
 </html>

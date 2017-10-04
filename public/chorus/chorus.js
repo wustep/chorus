@@ -1,29 +1,40 @@
 if (typeof jQuery == 'undefined') { // TODO: Add versions here
-		console.error("[Chorus] jQuery is not loaded and is required!");
+		console.error("[Chorus] Error - jQuery is not loaded and is required. Chorus disabled.");
 } else if (typeof io == 'undefined') {
-		console.error("[Chorus] Socket.io is not loaded and is required!");
-} else if (typeof _data == 'undefined') {
-		console.error("[Chorus] _data must exist as a global serializable object or variable, containing the data store.");
-/*} else if (typeof chorusRender != 'function') {
-		console.error("[Chorus] chorusRender() must be a global function that exists and renders the viz accordingly based on _data.");
-} else if (typeof chorusUpdate == 'function') { 
-		console.error("[Chorus] chorusUpdate() must not be an existing global function.");*/
+		console.error("[Chorus] Error - Socket.io is not loaded and is required. Chorus disabled.");
 } else {
-	let chorus = io();
+	if (typeof _data == 'undefined') { // Default _data var to empty array.
+		window._data = [];
+	}
+	let socket = io();
 	let display = -1; // -1 = neither, 0 = main, 1 = detached
 	let room = "ERR";
 	
-	function chorusUpdate() {
-		if (display == 0) chorus.emit("push main", _data);
-	}
-	$(function() {      
-		var nav = $("<nav id='chorus-nav'></nav>");
+	let Chorus = function() {
+		this.update = function() { // chorus.update() returns 1 if pushed to main, 0 otherwise
+			if (display == 0) { 
+				socket.emit("push main", _data);
+				return 1;
+			} 
+			return 0;
+		}
+		this.nav = $("<nav id='chorus-nav'></nav>");
+		this.chromecast = false;
+		this.render = function() {
+			console.log("[Chorus] Error - chorus.render() function should be implemented!");
+		}
+		this.append = function(obj) {
+			$(obj).append(this.nav);
+		}
+	};
+	var chorus = new Chorus();
+	
+	$(function() {
 		var navNone = $("<div><button id='chorus-cast'>Cast</button> <button id='chorus-follow'>Follow</button></div>");
-		var chorusChromecasting = false; // "chorusChromecast" is used to enable chromecast, chromecasting is the internal var, TODO: Simplify
-		var chromeCasting = false; // Set to 1 when following with Chromecast button			
+		var chromeCasting = false; // Set to true when following with Chromecast button			
 
 		/* Chorus - Chromecast */
-		if (typeof(chorusChromecast) != 'undefined' && chorusChromecast && typeof(chrome) != 'undefined') { 
+		if (chorus.chromecast && typeof(chrome) != 'undefined') { 
 			chorusChromecasting = true;
 			navNone.append(" <button id='chorus-chromecast-follow' disabled='true'>Chromecast</button>");
 			var applicationID = '7FF6442F';
@@ -92,7 +103,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 					console.log('[Chorus Chromecast] Receiver found');
 				} else {
 					console.log('[Chorus Chromecast] Receiver list was empty');
-					alert("[Chorus Chromecast] Error: receiver list was empty.");
+					//alert("[Chorus Chromecast] Error: receiver list was empty.");
 				}
 			}
 			function sendMessage() {
@@ -134,14 +145,13 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		let followRoom = getParameterByName("chorusFollowRoom");
 		if (followRoom) { // If GET chorusFollowRoom is specified, just go there
 			chromeCasting = false;
-			chorus.emit("follow", followRoom);
+			socket.emit("follow", followRoom);
 			navMain = $("<button id='chorus-exit'><span id='chorus-room'>Room: <span id='chorus-room-number'></span></button>");
 			navAux = navMain;
 			room = followRoom;
 		}
 		
-		nav.html(navNone);
-		$("body").append(nav)
+		chorus.nav.html(navNone);
 		
 		/* Chorus - Chromecast sender logic */
 		if (chorusChromecasting) {
@@ -152,17 +162,17 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		}
 		
 		// Getting data for the first time or Aux -> Main
-		chorus.on("get data", function (data) {
-			chorusRender(data, true);
+		socket.on("get data", function (data) {
+			chorus.render(data, true);
 			_data = data;
 		});
 		// Render on push to main/all
-		chorus.on("push all", function (data) {
-			chorusRender(data);
+		socket.on("push all", function (data) {
+			chorus.render(data);
 		});
-		chorus.on("push main", function (data) {
+		socket.on("push main", function (data) {
 			if (!display) { 
-				chorusRender(data);
+				chorus.render(data);
 				_data = data;
 			}
 		});
@@ -172,7 +182,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 			var roomPrompt = prompt("Create room?");
 			if (roomPrompt != null && roomPrompt.length > 0) {
 				room = roomPrompt;
-				chorus.emit("cast", { room: roomPrompt, data: _data });
+				socket.emit("cast", { room: roomPrompt, data: _data });
 				$("#chorus-cast").prop("disabled", true);
 				$("#chorus-follow").prop("disabled", true);
 				$("#chorus-chromecast-follow").prop("disabled", true);
@@ -180,12 +190,12 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		});
 		
 		// Cast success/failure
-		chorus.on("cast success", function() {
+		socket.on("cast success", function() {
 			display = 0;
 			$("#chorus-nav").html(navMain);
 			$("#chorus-room-number").html(room);
 		});     
-		chorus.on("cast failure", function() {
+		socket.on("cast failure", function() {
 			alert("Cast failed, invalid or existing room: " + room);
 			room = "ERR";
 			$("#chorus-cast").prop("disabled", false);
@@ -203,7 +213,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 			var roomPrompt = prompt((chromeCasting ? "Chromecast existing room?" : "Follow room?"));
 			if (roomPrompt != null && roomPrompt.length > 0) {
 				room = roomPrompt;
-				chorus.emit("follow", roomPrompt);
+				socket.emit("follow", roomPrompt);
 				$("#chorus-cast").prop("disabled", true);
 				$("#chorus-follow").prop("disabled", true);
 				$("#chorus-chromecast-follow").prop("disabled", true);
@@ -214,14 +224,14 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		}
 		
 		// Follow success/failure
-		chorus.on("follow success", function(data) {
+		socket.on("follow success", function(data) {
 			display = 0;
 			$("#chorus-nav").html(navMain);
 			$("#chorus-room-number").html(room);
 			_data = data;
-			chorusRender(data, true);
+			chorus.render(data, true);
 		});     
-		chorus.on("follow failure", function() {
+		socket.on("follow failure", function() {
 			alert("Follow failed, invalid room: " + room);
 			room = "ERR";
 			$("#chorus-cast").prop("disabled", false);
@@ -230,34 +240,34 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		});
 
 		// Display button
-		nav.on("click", "#chorus-display", function() {
+		chorus.nav.on("click", "#chorus-display", function() {
 			display = 1 - display; // swap 1 to 0 and vice-versa
 			if (!display) { // Swapping Aux -> Main
-				chorus.emit("get data")
-				nav.html(navMain);
+				socket.emit("get data")
+				chorus.nav.html(navMain);
 			} else {
-				nav.html(navAux);
+				chorus.nav.html(navAux);
 			}
 			$("#chorus-room-number").html(room);
 		});
 		
 		// Push button
-		nav.on("click", "#chorus-push", function() {
+		chorus.nav.on("click", "#chorus-push", function() {
 			if (!display) { // Pushing Main -> All
-				chorus.emit("push all", _data);
+				socket.emit("push all", _data);
 			} else { // Pushing Main -> All
-				chorus.emit("push main", _data);
+				socket.emit("push main", _data);
 			}
 		});
 
 		// Exit button
-		nav.on("click", "#chorus-exit", function() {
+		chorus.nav.on("click", "#chorus-exit", function() {
 			display = -1;
-			nav.html(navNone);
+			chorus.nav.html(navNone);
 			$("#chorus-cast").prop("disabled", false);
 			$("#chorus-follow").prop("disabled", false);
 			$("#chorus-chromecast-follow").prop("disabled", false);
-			chorus.emit("exit", room);
+			socket.emit("exit", room);
 		});
 	});
 }

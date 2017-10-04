@@ -46,9 +46,12 @@
 </head>
 <body>
 <div id="map" style="width: 1000px; height: 800px; border: 1px solid #ccc"></div>
-<!--<script src="lib/socket.io.2.0.1.min.js"></script>-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.2/socket.io.js"></script><script src="lib/jquery.3.2.1.min.js"></script>
+<script src="../../chorus/chorus.js"></script>
 <script>
+	chorus.chromecast = true;
+	$("body").append(chorus.nav);
+
     var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             osm = L.tileLayer(osmUrl, { maxZoom: 18, attribution: osmAttrib }),
@@ -81,7 +84,7 @@
         drawnItems.addLayer(layer);
 		_data[3].push(layer.id); // Add to recently added list
 		updateData();
-		chorusUpdate();
+		chorus.update();
     });
 	
     map.on('draw:edited', function (e) {
@@ -90,7 +93,7 @@
 			_data[4].push([layers[item].id, Date.now()]);			
 		}
 		updateData();
-		chorusUpdate();
+		chorus.update();
     });
 	
 	map.on('draw:deleted', function (e) {
@@ -99,7 +102,7 @@
 			_data[5].push([layers[item].id, Date.now()]);			
 		}
 		updateData();
-		chorusUpdate();
+		chorus.update();
 	});
 
 	// _data holds [CenterCoordinates, ZoomLevel, DrawnItems, RecentlyAddedItemsById, RecentlyEditedItemsById, RecentlyDeletedItemsById]
@@ -116,12 +119,12 @@
 			generating = false;
 		} else {
 			updateData();
-			chorusUpdate();
+			chorus.update();
 		}
 		$("#chorus-push").prop("disabled", false); // Enable push again; TODO: Add disabled styling
 	});
 	
-	function chorusRender(data, fresh=false) { // Draw map objects and set view to stored data
+	chorus.render = function(data, fresh=false) { // Draw map objects and set view to stored data
 		if (data && data.length == 6) { // TODO: Better validation?
 			generating = true;
 			map.setView(data[0], data[1]);
@@ -204,25 +207,22 @@
 			}
 		});
 	}
-</script>
-<script src="../../chorus/chorus.js"></script>
-<script>
-	$(function () {
-		$("#chorus-nav").on("click", "#chorus-display", function() {
-			if ($(this).attr("value") !== "main") { // Swapping Main -> Aux, kill recently lists
-				_data[3] = [];
-				_data[4] = [];
-				_data[5] = [];
-			}
-		});
-		
-		$("#chorus-nav").on("click", "#chorus-push", function() {
-			if ($(this).attr("value") !== "main") { // Pushing Aux -> Main, kill recently lists
-				_data[3] = [];
-				_data[4] = [];
-				_data[5] = []; 
-			}
-		});
+
+	// Additional logic to clear lists on nav change
+	chorus.nav.on("click", "#chorus-display", function() {
+		if ($(this).attr("value") !== "main") { // Swapping Main -> Aux, kill recently lists
+			_data[3] = [];
+			_data[4] = [];
+			_data[5] = [];
+		}
+	});
+	
+	chorus.nav.on("click", "#chorus-push", function() {
+		if ($(this).attr("value") !== "main") { // Pushing Aux -> Main, kill recently lists
+			_data[3] = [];
+			_data[4] = [];
+			_data[5] = []; 
+		}
 	});
 </script>
 </body>
