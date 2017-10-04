@@ -8,8 +8,8 @@ const app = module.exports = express(); // Export express app for use elsewhere
 const server = http.createServer(app);
 
 // Serve files from env CLIENT
-if (process.env.client) {
-	let folder = __dirname + "/../" + process.env.client;
+if (process.env.CLIENT) {
+	let folder = __dirname + "/../" + process.env.CLIENT;
 	app.use(express.static(folder));
 	console.log("Serving files from: " + folder);
 }
