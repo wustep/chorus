@@ -200,9 +200,9 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		socket.on("cast failure", function() {
 			alert("Cast failed, invalid or existing room: " + room);
 			room = "ERR";
-			$("#chorus-cast").prop("disabled", false);
-			$("#chorus-follow").prop("disabled", false);
-			$("#chorus-chromecast-follow").prop("disabled", false);
+			chorus.nav.find("#chorus-cast").prop("disabled", false);
+			chorus.nav.find("#chorus-follow").prop("disabled", false);
+			chorus.nav.find("#chorus-chromecast-follow").prop("disabled", false);
 			chromeCasting = false;
 		});
 		
