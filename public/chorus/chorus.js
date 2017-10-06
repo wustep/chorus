@@ -207,7 +207,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		});
 		
 		// Follow button
-		chorus.nav.find("#chorus-nav").on("click", "#chorus-follow", function() {
+		chorus.nav.on("click", "#chorus-follow", function() {
 			followPrompt();
 		});
 		
