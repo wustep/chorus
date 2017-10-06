@@ -6,9 +6,11 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 	if (typeof _data == 'undefined') { // Default _data var to empty array.
 		window._data = [];
 	}
+	
+	// TODO move these variables to Chorus object
 	let socket = io();
 	let display = -1; // -1 = neither, 0 = main, 1 = detached
-	let room = "ERR";
+	let room = "ERR"; 
 	
 	let Chorus = function() {
 		this.update = function() { // chorus.update() returns 1 if pushed to main, 0 otherwise
@@ -52,7 +54,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 					receiverListener);
 
 				chrome.cast.initialize(apiConfig, onInitSuccess, onError);
-				$("#chorus-chromecast-follow").prop("disabled", false)
+				chorus.nav.find("#chorus-chromecast-follow").prop("disabled", false)
 			}
 
 			function onInitSuccess() {
@@ -155,7 +157,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		
 		/* Chorus - Chromecast sender logic */
 		if (chorusChromecasting) {
-			$("#chorus-nav").on("click", "#chorus-chromecast-follow", function () {
+			chorus.nav.on("click", "#chorus-chromecast-follow", function () {
 				chromeCasting = true;
 				followPrompt();
 			});
@@ -178,22 +180,22 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		});
 				
 		// Cast button
-		$("#chorus-nav").on("click", "#chorus-cast", function() {
+		chorus.nav.on("click", "#chorus-cast", function() {
 			var roomPrompt = prompt("Create room?");
 			if (roomPrompt != null && roomPrompt.length > 0) {
 				room = roomPrompt;
 				socket.emit("cast", { room: roomPrompt, data: _data });
-				$("#chorus-cast").prop("disabled", true);
-				$("#chorus-follow").prop("disabled", true);
-				$("#chorus-chromecast-follow").prop("disabled", true);
+				chorus.nav.find("#chorus-cast").prop("disabled", true);
+				chorus.nav.find("#chorus-follow").prop("disabled", true);
+				chorus.nav.find("#chorus-chromecast-follow").prop("disabled", true);
 			}
 		});
 		
 		// Cast success/failure
 		socket.on("cast success", function() {
 			display = 0;
-			$("#chorus-nav").html(navMain);
-			$("#chorus-room-number").html(room);
+			chorus.nav.html(navMain);
+			chorus.nav.find("#chorus-room-number").html(room);
 		});     
 		socket.on("cast failure", function() {
 			alert("Cast failed, invalid or existing room: " + room);
@@ -205,7 +207,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		});
 		
 		// Follow button
-		$("#chorus-nav").on("click", "#chorus-follow", function() {
+		chorus.nav.find("#chorus-nav").on("click", "#chorus-follow", function() {
 			followPrompt();
 		});
 		
@@ -214,9 +216,9 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 			if (roomPrompt != null && roomPrompt.length > 0) {
 				room = roomPrompt;
 				socket.emit("follow", roomPrompt);
-				$("#chorus-cast").prop("disabled", true);
-				$("#chorus-follow").prop("disabled", true);
-				$("#chorus-chromecast-follow").prop("disabled", true);
+				chorus.nav.find("#chorus-cast").prop("disabled", true);
+				chorus.nav.find("#chorus-follow").prop("disabled", true);
+				chorus.nav.find("#chorus-chromecast-follow").prop("disabled", true);
 				if (chromeCasting) sendMessage(); // TODO: For some reason, this can't be in Chorus.on("Follow success"). Not sure why, but this leads to some weird interactions.
 			} else {
 				chromeCasting = false;
@@ -226,17 +228,17 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		// Follow success/failure
 		socket.on("follow success", function(data) {
 			display = 0;
-			$("#chorus-nav").html(navMain);
-			$("#chorus-room-number").html(room);
+			chorus.nav.html(navMain);
+			chorus.nav.find("#chorus-room-number").html(room);
 			_data = data;
 			chorus.render(data, true);
 		});     
 		socket.on("follow failure", function() {
 			alert("Follow failed, invalid room: " + room);
 			room = "ERR";
-			$("#chorus-cast").prop("disabled", false);
-			$("#chorus-follow").prop("disabled", false);
-			$("#chorus-chromecast-follow").prop("disabled", false)
+			chorus.nav.find("#chorus-cast").prop("disabled", false);
+			chorus.nav.find("#chorus-follow").prop("disabled", false);
+			chorus.nav.find("#chorus-chromecast-follow").prop("disabled", false)
 		});
 
 		// Display button
@@ -248,7 +250,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 			} else {
 				chorus.nav.html(navAux);
 			}
-			$("#chorus-room-number").html(room);
+			chorus.nav.find("#chorus-room-number").html(room);
 		});
 		
 		// Push button
@@ -264,9 +266,9 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 		chorus.nav.on("click", "#chorus-exit", function() {
 			display = -1;
 			chorus.nav.html(navNone);
-			$("#chorus-cast").prop("disabled", false);
-			$("#chorus-follow").prop("disabled", false);
-			$("#chorus-chromecast-follow").prop("disabled", false);
+			chorus.nav.find("#chorus-cast").prop("disabled", false);
+			chorus.nav.find("#chorus-follow").prop("disabled", false);
+			chorus.nav.find("#chorus-chromecast-follow").prop("disabled", false);
 			socket.emit("exit", room);
 		});
 	});
