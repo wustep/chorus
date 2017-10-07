@@ -111,7 +111,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 
 							function onSuccess(message) {
 								console.log('[Chorus Chromecast] onSuccess: ' + message);
-								alert("[Chorus Chromecast] Casted!");
+								alert("[Chorus Chromecast] Successfully casted!");
 							}
 
 							function onStopAppSuccess() {
@@ -328,7 +328,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 			}
 			return 0;
 		}
-		console.log("[Chorus] Initialized" + ((url) ? "at: " + url : ""));
+		console.log("[Chorus] Initialized" + ((url) ? " at: " + url : ""));
 	};
 	
 }
