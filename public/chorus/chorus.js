@@ -113,7 +113,6 @@ if (typeof jQuery == 'undefined') {
 
 			/* Chorus-Chromecast logic: initialize chromecast and set up buttons */
 			if (chorus.chromecast && typeof(chrome) != 'undefined') { 
-				//chromeCasting = true;
 				// Append cast button to nav
 				navNone.append(" <button id='chorus-chromecast-follow' disabled='true'>Chromecast</button>"); 
 				
@@ -124,7 +123,7 @@ if (typeof jQuery == 'undefined') {
 
 				/* Chrome cast sender API, from https://github.com/googlecast/CastHelloText-chrome */
 				if (!chrome.cast || !chrome.cast.isAvailable) {
-					setTimeout(initializeCastApi, 1000);
+					setTimeout(initializeCastApi, 2000);
 				}
 
 				function initializeCastApi() {
@@ -152,18 +151,18 @@ if (typeof jQuery == 'undefined') {
 				}
 
 				function onStopAppSuccess() {
-					console.log('[Chorus Chromecast] onStopAppSuccess');
+					console.log('[Chorus Chromecast] Stopped Chromecast app');
 				}
 
 				function sessionListener(e) {
-					console.log('New session ID:' + e.sessionId);
+					console.log('[Chorus Chromecast] New session ID: ' + e.sessionId);
 					session = e;
 					session.addUpdateListener(sessionUpdateListener);
 					session.addMessageListener(namespace, receiverMessage);
 				}
 
 				function sessionUpdateListener(isAlive) {
-					var message = isAlive ? 'Session Updated' : 'Session Removed';
+					var message = '[Chorus Chromecast] ' + isAlive ? 'Session Updated' : 'Session Removed';
 					message += ': ' + session.sessionId;
 					console.log(message);
 					if (!isAlive) {
@@ -192,7 +191,7 @@ if (typeof jQuery == 'undefined') {
 						url: window.location.href,
 						room: chorus.room
 					};
-					if (session !== null) {
+					if (session !== null) { // If session exists, send new room & link to process.
 						session.sendMessage(namespace, message, onSuccess.bind(this, 'Chorus cast sent to ' + message.url + " @ room: " + message.room), onError);
 					} else {
 						console.log("[Chorus Chromecast] Session requested with receiver..");
@@ -200,8 +199,7 @@ if (typeof jQuery == 'undefined') {
 							session = e;
 							session.sendMessage(namespace, message, onSuccess.bind(this, 'Chorus cast sent to ' + message.url + " @ room: " + message.room), onError);
 						}, onError);
-						chromeCasting = false;
-					}	
+					}
 				}
 			} else if (chorus.chromecast) {
 				console.error("[Chorus] Chromecast integration was requested but cast sender API was not included.");
@@ -278,7 +276,6 @@ if (typeof jQuery == 'undefined') {
 				chorus.nav.find("#chorus-cast").prop("disabled", false);
 				chorus.nav.find("#chorus-follow").prop("disabled", false);
 				chorus.nav.find("#chorus-chromecast-follow").prop("disabled", false);
-				chromeCasting = false;
 			});
 			
 			// Follow button
@@ -305,6 +302,10 @@ if (typeof jQuery == 'undefined') {
 					chorus.nav.find("#chorus-follow").prop("disabled", true);
 					chorus.nav.find("#chorus-chromecast-follow").prop("disabled", true);
 					console.log("[Chorus] Attempting follow: " + chorus.room);
+					if (chorus.chromecast && chromeCasting) {
+						sendMessage();
+						chromeCasting = false;
+					}
 				} else {
 					chromeCasting = false;
 				}
@@ -317,9 +318,6 @@ if (typeof jQuery == 'undefined') {
 				chorus.display = 0; // Set display to main
 				chorus.nav.html(navMain); // Change navbar to main
 				chorus.nav.find("#chorus-room-number").html(chorus.room); // Replace room # with proper #
-				if (chromeCasting) {
-					sendMessage();
-				}
 				console.log("[Chorus] Follow success: " + chorus.room);
 			});     
 			chorus.socket.on("follow failure", function() {
@@ -330,6 +328,7 @@ if (typeof jQuery == 'undefined') {
 				chorus.nav.find("#chorus-follow").prop("disabled", false);
 				chorus.nav.find("#chorus-chromecast-follow").prop("disabled", false);
 				console.log("[Chorus] Follow failed, invalid room: " + followRoom);
+				chromeCasting = false;
 			});
 
 			// Display button
