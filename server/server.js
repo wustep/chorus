@@ -1,3 +1,8 @@
+/* server.js
+	Chorus server-sided implementation
+	start express server to host server sockets and serve client-sided library, receiver, etc.
+*/
+
 require('dotenv').config();
 
 const express = require('express');
@@ -16,7 +21,7 @@ if (process.env.CLIENT) {
 
 // Serve error page on 404
 app.use(function (req, res, next) {
-	res.status(404).send("404 - Sorry can't find that!")
+	res.status(404).send("404 Page Not Found")
 	console.log("[Error] 404 at: " + req.url);
 });
 
@@ -25,4 +30,5 @@ server.listen((process.env.PORT || 3000), () => {
 	console.log(`Server listening on port ${process.env.PORT}`);
 });
 
+// Attach chorus sockets to server
 sockets.start(server);

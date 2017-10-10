@@ -1,56 +1,67 @@
+<!-- test.html
+	  Chorus example implementation with basic add button
+-->
 <!DOCTYPE html>
 <html>
 <head>
-<title>Test</title>
-<link href="chorus.css" rel="stylesheet" type="text/css" />
-<style>
-body {
-	font-size: 30px;
-	text-align: center;
-	background-color: white;
-}
-button#add {
-	font-size: 30px;
-	line-height: 33px;
-	color: white;
-	background-color: grey;
-}
-</style>
+	<title>Chorus: Add btn</title>
+
+	<!-- Include chrous.css for nav styling, client can add additional styling to #chorus-nav and buttons -->
+	<link href="chorus.css" rel="stylesheet" type="text/css" />
+
+	<style>
+		body {
+			font-size: 30px;
+			text-align: center;
+			background-color: white;
+		}
+		button#add {
+			font-size: 30px;
+			line-height: 33px;
+			color: white;
+			background-color: grey;
+		}
+	</style>
 </head>
 <body>
-<p id="main">0</p>
-<button id="add" onClick=add()>Add</button>
-<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.2/socket.io.js"></script>
-<script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
 
-<script src="chorus.js"></script>
-<script>
-	var _data = 0;
-	// Chorus implementation:
-	// 		0. Include chorus.css, jQuery, Socket.io, chorus.js, and Cast_Sender v1 API (if using Chromecast)
-	// 	 	1. Keep relevant data in _data.
-	//		2. Create new chorus object: "var chorus = new Chorus({params})"
-	//				params can be chromecast (boolean) or server (string), where server is the chorus server url
-	//		3. Implement chorus.render(data, fresh) that renders _data accordingly 
-	//				(fresh is boolean which is true when rendering data for the first time, optional)
-	// 		4. Use chorus.update() whenever data is updated.
-	// 		5. Append chorus.nav to appropriate div with chorus.append("div"), default is body
-	//				appending will set everything into motion! so everything should be declared before this
-	// 		6. If desired, add handlers to chorus.nav.on(event, obj) with jQuery
+	<!-- Basic add button data example -->
+	<p id="main">0</p>
+	<button id="add" onClick=add()>Add</button>
 
-	var chorus = new Chorus({chromecast: true});
-	chorus.render = function(data) {
-		$("#main").html(data);
-		_data = data;
-	}
-	chorus.append();
+	<!-- Chorus requires jQuery and Socket.IO
+		 Google Cast_Sender v1 API is required for Chromecast integration -->
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.2/socket.io.js"></script>
+	<script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
+	<!-- Include chorus.js before creating Chorus object -->
+	<script src="chorus.js"></script>
+	<script>
+		var _data = 0;
+		// Chorus implementation:
+		// 		0. Include chorus.css, jQuery, Socket.io, chorus.js, and Cast_Sender v1 API (if using Chromecast)
+		// 	 	1. Keep relevant data in _data.
+		//		2. Create new chorus object: "var chorus = new Chorus({params})"
+		//				params can be chromecast (boolean) or server (string), where server is the chorus server url
+		//		3. Implement chorus.render(data, fresh) that renders _data accordingly 
+		//				(fresh is boolean which is true when rendering data for the first time, optional)
+		// 		4. Use chorus.update() whenever data is updated.
+		// 		5. Append chorus.nav to appropriate div with chorus.append("div"), default is body
+		//				appending will set everything into motion! so everything should be declared before this
+		// 		6. If desired, add handlers to chorus.nav.on(event, obj) with jQuery
 
-	function add() {
-		_data++;
-		$("#main").html(_data);
-		chorus.update();
-	}
-</script>
+		var chorus = new Chorus({chromecast: true});
+		chorus.render = function(data) {
+			$("#main").html(data);
+			_data = data;
+		}
+		chorus.append();
+
+		function add() {
+			_data++;
+			$("#main").html(_data);
+			chorus.update();
+		}
+	</script>
 </body>
 </html>
