@@ -23,18 +23,19 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 	}
 	
 	let chorusInitialized = false;
-	var Chorus = function(url) {
+	var Chorus = function(params={}) {
 		if (chorusInitialized) {
-			console.error("[Chorus] Error: Chorus is already initialized!")
+			console.error("[Chorus] Error: An instance of chorus is already running!");
+			return;
 		}
 		chorusInitialized = true;
 		
-		this.socket = io(url); // Create new socket given provided URL.
+		this.socket = io(('server' in params) ? params.server : ''); // Create new socket given provided URL.
 		this.display = -1; // Default display to none, 0 = detached from main, 1 = main
 		this.room = "ERR"; // Default room to "ERR"
 
 		this.nav = $("<nav id='chorus-nav'></nav>");
-		this.chromecast = false;
+		this.chromecast = ('chromecast') in params ? params.chromecast : '';
 		
 		/* chorus.update() 
 			emits socket message to push to main display
@@ -78,7 +79,6 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 			}
 			return 0;
 		}
-		console.log("[Chorus] Initialized" + ((url) ? " at: " + url : ""));
 
 		var chorus = this; // Use this to refer to chorus instance from here on to make simpler for sockets, etc.
 
@@ -104,6 +104,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 				}
 
 				function initializeCastApi() {
+					console.log("[Chorus Chromecast] Attempting initialization");
 					var sessionRequest = new chrome.cast.SessionRequest(applicationID);
 					var apiConfig = new chrome.cast.ApiConfig(sessionRequest,
 						sessionListener,
@@ -117,8 +118,8 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 				}
 
 				function onError(message) {
-					console.log('[Chorus Chromecast] onError: ' + JSON.stringify(message));
-					alert("[Chorus Chromecast] Error: " + message.code + ": " + message.description + " / " + message.details);
+					console.log(`[Chorus Chromecast] onError: ${JSON.stringify(message)}`);
+					alert(`[Chorus Chromecast] Failed to cast: (${message.code}`);
 				}
 
 				function onSuccess(message) {
@@ -156,9 +157,9 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 				
 				function receiverListener(e) {
 					if (e === 'available') {
-						console.log('[Chorus Chromecast] Receiver found');
+						console.log('[Chorus Chromecast] Receiver found :)');
 					} else {
-						console.log('[Chorus Chromecast] Receiver list was empty');
+						console.log('[Chorus Chromecast] Receiver list was empty :(');
 					}
 				}
 				
@@ -279,7 +280,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 					chorus.nav.find("#chorus-cast").prop("disabled", true);
 					chorus.nav.find("#chorus-follow").prop("disabled", true);
 					chorus.nav.find("#chorus-chromecast-follow").prop("disabled", true);
-					console.log("[Chorus] Attempting follow: " + followRoom)
+					console.log("[Chorus] Attempting follow: " + chorus.room);
 				} else {
 					chromeCasting = false;
 				}
@@ -340,6 +341,7 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 				chorus.socket.emit("exit", chorus.room);
 			});
 		});
+		console.log("[Chorus] Initialized" + (('server' in params) ? ` at: ${params.server}` : ""));
 	};
 	
 }
