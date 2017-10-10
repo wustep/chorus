@@ -4,7 +4,7 @@ const socketIO = require('socket.io');
 let rooms = new Map();
 
 function log(room, id, msg, force) { // Log if debug set in .env or force parameter is set
-	if (process.env.debug === 'true' || force) {
+	if (process.env.DEBUG === 'true' || force) {
 		let roomNum = "";
 		if (room !== null && room !== undefined) roomNum = ` [${room}]`; // Exclude room in logs when room is yet to be set
 		console.log(`[${id}]${roomNum} ${msg}`);
