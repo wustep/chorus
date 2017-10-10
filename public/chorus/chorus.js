@@ -109,11 +109,11 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 						sessionListener,
 						receiverListener);
 					chrome.cast.initialize(apiConfig, onInitSuccess, onError);
-					chorus.nav.find("#chorus-chromecast-follow").prop("disabled", false)
 				}
 
 				function onInitSuccess() {
 					console.log('[Chorus Chromecast] Initialization success');
+					chorus.nav.find("#chorus-chromecast-follow").prop("disabled", false);
 				}
 
 				function onError(message) {
@@ -280,7 +280,6 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 					chorus.nav.find("#chorus-follow").prop("disabled", true);
 					chorus.nav.find("#chorus-chromecast-follow").prop("disabled", true);
 					console.log("[Chorus] Attempting follow: " + followRoom)
-					if (chromeCasting) sendMessage(); // TODO: For some reason, this can't be in Chorus.on("Follow success"). Not sure why, but this leads to some weird interactions.
 				} else {
 					chromeCasting = false;
 				}
@@ -293,6 +292,9 @@ if (typeof jQuery == 'undefined') { // TODO: Add versions here
 				chorus.display = 0; // Set display to main
 				chorus.nav.html(navMain); // Change navbar to main
 				chorus.nav.find("#chorus-room-number").html(chorus.room); // Replace room # with proper #
+				if (chromeCasting) {
+					sendMessage();
+				}
 				console.log("[Chorus] Follow success: " + chorus.room);
 			});     
 			chorus.socket.on("follow failure", function() {
