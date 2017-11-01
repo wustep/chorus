@@ -267,12 +267,13 @@ if (typeof jQuery == 'undefined') {
 				chorus.data = data;
 				chorus.render(data);
 			});
-			chorus.socket.on("push main", function (data) {
+
+			chorus.socket.on("push main", debounce(function (data) {
 				if (!chorus.display) { // If on main
 					chorus.data = data;
 					chorus.render(data);
 				}
-			});
+			}, chorus.debounce));
 
 			// Cast button
 			chorus.nav.on("click", "#chorus-cast", function() {
