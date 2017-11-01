@@ -2,166 +2,172 @@
 <html>
 <head>
 <!-- Adapted from https://leaflet.github.io/Leaflet.draw/docs/leaflet-draw-latest.html#leaflet-1-0-examples -->
-    <title>Leaflet.draw demo</title>
+	<title>Leaflet.draw demo</title>
 
-    <script src="lib/leaflet-src.js"></script>
-    <link rel="stylesheet" href="lib/leaflet.css"/>
+	<script src="lib/leaflet-src.js"></script>
+	<link rel="stylesheet" href="lib/leaflet.css"/>
 
-    <script src="lib/Leaflet.draw.js"></script>
-    <script src="lib/Leaflet.Draw.Event.js"></script>
-    <link rel="stylesheet" href="lib/leaflet.draw.css"/>
+	<script src="lib/Leaflet.draw.js"></script>
+	<script src="lib/Leaflet.Draw.Event.js"></script>
+	<link rel="stylesheet" href="lib/leaflet.draw.css"/>
 	<link href="../../chorus/chorus.css" rel="stylesheet" type="text/css" />
 
-    <script src="lib/Toolbar.js"></script>
-    <script src="lib/Tooltip.js"></script>
+	<script src="lib/Toolbar.js"></script>
+	<script src="lib/Tooltip.js"></script>
 
-    <script src="lib/GeometryUtil.js"></script>
-    <script src="lib/LatLngUtil.js"></script>
-    <script src="lib/LineUtil.Intersect.js"></script>
-    <script src="lib/Polygon.Intersect.js"></script>
-    <script src="lib/Polyline.Intersect.js"></script>
-    <script src="lib/TouchEvents.js"></script>
+	<script src="lib/GeometryUtil.js"></script>
+	<script src="lib/LatLngUtil.js"></script>
+	<script src="lib/LineUtil.Intersect.js"></script>
+	<script src="lib/Polygon.Intersect.js"></script>
+	<script src="lib/Polyline.Intersect.js"></script>
+	<script src="lib/TouchEvents.js"></script>
 
-    <script src="lib/DrawToolbar.js"></script>
-    <script src="lib/Draw.Feature.js"></script>
-    <script src="lib/Draw.SimpleShape.js"></script>
-    <script src="lib/Draw.Polyline.js"></script>
-    <script src="lib/Draw.Circle.js"></script>
-    <script src="lib/Draw.Marker.js"></script>
-    <script src="lib/Draw.Polygon.js"></script>
-    <script src="lib/Draw.Rectangle.js"></script>
+	<script src="lib/DrawToolbar.js"></script>
+	<script src="lib/Draw.Feature.js"></script>
+	<script src="lib/Draw.SimpleShape.js"></script>
+	<script src="lib/Draw.Polyline.js"></script>
+	<script src="lib/Draw.Circle.js"></script>
+	<script src="lib/Draw.Marker.js"></script>
+	<script src="lib/Draw.Polygon.js"></script>
+	<script src="lib/Draw.Rectangle.js"></script>
 
+	<script src="lib/EditToolbar.js"></script>
+	<script src="lib/EditToolbar.Edit.js"></script>
+	<script src="lib/EditToolbar.Delete.js"></script>
 
-    <script src="lib/EditToolbar.js"></script>
-    <script src="lib/EditToolbar.Edit.js"></script>
-    <script src="lib/EditToolbar.Delete.js"></script>
+	<script src="lib/Control.Draw.js"></script>
 
-    <script src="lib/Control.Draw.js"></script>
-
-    <script src="lib/Edit.Poly.js"></script>
-    <script src="lib/Edit.SimpleShape.js"></script>
-    <script src="lib/Edit.Circle.js"></script>
-    <script src="lib/Edit.Rectangle.js"></script>
-    <script src="lib/Edit.Marker.js"></script>
+	<script src="lib/Edit.Poly.js"></script>
+	<script src="lib/Edit.SimpleShape.js"></script>
+	<script src="lib/Edit.Circle.js"></script>
+	<script src="lib/Edit.Rectangle.js"></script>
+	<script src="lib/Edit.Marker.js"></script>
 </head>
 <body>
-<div id="map" style="width: 1000px; height: 800px; border: 1px solid #ccc"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.2/socket.io.js"></script><script src="lib/jquery.3.2.1.min.js"></script>
-<script src="../../chorus/chorus.js"></script>
-<script>
-	chorus.chromecast = true;
-	$("body").append(chorus.nav);
+	<div id="map" style="width: 1000px; height: 800px; border: 1px solid #ccc"></div>
 
-    var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            osm = L.tileLayer(osmUrl, { maxZoom: 18, attribution: osmAttrib }),
-            map = new L.Map('map', { center: new L.LatLng(39.9612, -82.9988), zoom: 13 }),
-            drawnItems = L.featureGroup().addTo(map);
-    L.control.layers({ // TODO: Fix removeAllLayers button on edit
-        'osm': osm.addTo(map),
-        "google": L.tileLayer('http://www.google.com/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
-            attribution: 'google'
-        })
-    }, { 'draws': drawnItems }, { position: 'topleft', collapsed: false }).addTo(map);
-    map.addControl(new L.Control.Draw({
-        edit: {
-            featureGroup: drawnItems,
-            poly: {
-                allowIntersection: false
-            }
-        },
-        draw: {
-            polygon: {
-                allowIntersection: false,
-                showArea: true
-            }
-        }
-    }));
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.2/socket.io.js"></script><script src="lib/jquery.3.2.1.min.js"></script>
+	<script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
+	<script src="../../chorus/chorus.js"></script>
+	<script>
+	var generating = false; // flag to prevent pushing when generating
 
-    map.on(L.Draw.Event.CREATED, function (e) {
-        var layer = e.layer;
+	// _data holds [CenterCoordinates, ZoomLevel, DrawnItems, RecentlyAddedItemsById, RecentlyEditedItemsById, RecentlyDeletedItemsById]
+	// need 2 stores, 1 for local data and 1 for received data, particularly for auxillary display
+	var _data = [new L.LatLng(39.9612, -82.9988), 13, [], [], [], []]; // local data store
+
+	var chorus = new Chorus({chromecast: true, data: _data, clone: true}); // Copy object instead of making clone refer to _data
+	chorus.append();
+
+	var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+		osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+		osm = L.tileLayer(osmUrl, { maxZoom: 18, attribution: osmAttrib }),
+		map = new L.Map('map', { center: new L.LatLng(39.9612, -82.9988), zoom: 13 }),
+		drawnItems = L.featureGroup().addTo(map);
+
+	L.control.layers({ // TODO: Fix removeAllLayers button on edit
+		'osm': osm.addTo(map),
+		"google": L.tileLayer('http://www.google.com/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}', {
+			attribution: 'google'
+		})
+	}, { 'draws': drawnItems }, { position: 'topleft', collapsed: false }).addTo(map);
+
+	map.addControl(new L.Control.Draw({
+		edit: {
+			featureGroup: drawnItems,
+			poly: {
+				allowIntersection: false
+			}
+		},
+		draw: {
+			polygon: {
+				allowIntersection: false,
+				showArea: true
+			}
+		}
+	}));
+
+	map.on(L.Draw.Event.CREATED, function (e) {
+		var layer = e.layer;
 		layer.id = (Date.now() + Math.random()); // Give random ID
-        drawnItems.addLayer(layer);
+		drawnItems.addLayer(layer);
 		_data[3].push(layer.id); // Add to recently added list
 		updateData();
-		chorus.update();
-    });
-	
-    map.on('draw:edited', function (e) {
+		chorus.update(_data);
+	});
+
+	map.on('draw:edited', function (e) {
 		var layers = e.layers["_layers"];
 		for (item in layers) {
-			_data[4].push([layers[item].id, Date.now()]);			
+			_data[4].push([layers[item].id, Date.now()]);
 		}
 		updateData();
-		chorus.update();
-    });
-	
+		chorus.update(_data);
+	});
+
 	map.on('draw:deleted', function (e) {
 		var layers = e.layers["_layers"];
 		for (item in layers) {
-			_data[5].push([layers[item].id, Date.now()]);			
+			_data[5].push([layers[item].id, Date.now()]);
 		}
 		updateData();
-		chorus.update();
+		chorus.update(_data);
 	});
-
-	// _data holds [CenterCoordinates, ZoomLevel, DrawnItems, RecentlyAddedItemsById, RecentlyEditedItemsById, RecentlyDeletedItemsById]
-	var _data = [new L.LatLng(39.9612, -82.9988), 13, [], [], [], []]; // Default to Columbus
-	var socket = io();
-	var generating = false;
 
 	map.on('movestart', function(e) {
 		$("#chorus-push").prop("disabled",true); // Disable push button while moving
 	});
-	
+
 	map.on('moveend', function(e) {
 		if (generating) {
 			generating = false;
 		} else {
 			updateData();
-			chorus.update();
+			chorus.update(_data, true);
 		}
 		$("#chorus-push").prop("disabled", false); // Enable push again; TODO: Add disabled styling
 	});
-	
+
 	chorus.render = function(data, fresh=false) { // Draw map objects and set view to stored data
-		if (data && data.length == 6) { // TODO: Better validation?
+		if (data && data.length == 6) {
+			console.log("[Chorus] Rendering!")
 			generating = true;
 			map.setView(data[0], data[1]);
 			if (fresh) { // Fresh generate, from default map or swap view button
+				//_data = data;
 				drawnItems.clearLayers();
 				for (item in data[2]["features"]) {
 					var i = data[2]["features"][item];
 					drawnItems.addLayer(geoJSON2(i));
 				}
-				drawnItems.addTo(map);
-				updateData();
 			} else {
 				for (item in data[2]["features"]) { // Items from recently added list
 					var i = data[2]["features"][item];
+					console.log(i);
 					var up = updated(data, _data, i.id);
-					if (up === 1) drawnItems.addLayer(geoJSON2(i));
-					drawnItems.addTo(map);
-					updateData();
+					if (up === 1) drawnItems.addLayer(geoJSON2(i)); // Found updated item, add it!
 				}
 			}
+			drawnItems.addTo(map);
+			updateData();
+		} else {
+			console.log("[Chorus] Failed to render!");
 		}
 	}
-	
+
 	function updated(newData, oldData, id) { // Check if id is added (1), edited (2), or deleted (3), or none (0). TODO: optimization?
 		// Check deleted first, as that is priority, then edited, then added.
-		var ans = 0;
-		for (var i = 0; !ans && i < newData[5].length; i++) { // Recently Deleted
+		for (var i = 0; i < newData[5].length; i++) { // Recently Deleted
 			if (id == newData[5][i][0]) { // TODO: Add recently deleted and edited syncs
-				ans = 3;
+				return 3;
 			}
 		}
-		for (var j = 0; !ans && j < newData[4].length; j++) { // TODO: Get priority and figure out latest update
+		for (var j = 0; j < newData[4].length; j++) { // TODO: Get priority and figure out latest update
 			if (id == newData[4][j][0]) {
-				ans = 2;
+				return 2;
 			}
 		}
-		for (var k = 0; !ans && k < newData[3].length; k++) {
+		for (var k = 0; k < newData[3].length; k++) {
 			if (id == newData[3][k]) {
 				var alreadyAdded = false;
 				for (var l = 0; !alreadyAdded && l < oldData[3].length; l++) {
@@ -170,20 +176,21 @@
 					}
 				}
 				if (!alreadyAdded) {
-					ans = 1;
+					return 1;
 				}
 				break;
 			}
 		}
-		return ans;
+		return 0;
 	}
-	
+
 	function updateData() { // Store center, zoom, and objects
 		_data[0] = map.getBounds().getCenter();
 		_data[1] = map.getZoom();
 		_data[2] = toGeoJSON(drawnItems);
+		chorus.data = _data; // Replace data store
 	}
-	
+
 	function toGeoJSON(items) { // Use toGeoJSON but preserve IDs and radii
 		var result = items.toGeoJSON();
 		var i = 0;
@@ -196,7 +203,7 @@
 		}
 		return result;
 	}
-	
+
 	function geoJSON2(i) { // Use GeoJSON but convert circles https://github.com/Leaflet/Leaflet.draw/issues/390
 		return L.geoJSON(i, {
 			pointToLayer: function(feature, latlng) {
@@ -214,16 +221,19 @@
 			_data[3] = [];
 			_data[4] = [];
 			_data[5] = [];
+			chorus.data = JSON.parse(JSON.stringify(_data));
 		}
 	});
-	
+
 	chorus.nav.on("click", "#chorus-push", function() {
 		if ($(this).attr("value") !== "main") { // Pushing Aux -> Main, kill recently lists
 			_data[3] = [];
 			_data[4] = [];
-			_data[5] = []; 
+			_data[5] = [];
+			chorus.data = JSON.parse(JSON.stringify(_data));
 		}
 	});
-</script>
+
+	</script>
 </body>
 </html>

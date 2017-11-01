@@ -34,33 +34,39 @@
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.2/socket.io.js"></script>
 	<script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
-	<!-- Include chorus.js before creating Chorus object -->
 	<script src="chorus.js"></script>
-	<script>
-		var _data = 0;
-		// Chorus implementation:
-		// 		0. Include chorus.css, jQuery, Socket.io, chorus.js, and Cast_Sender v1 API (if using Chromecast)
-		// 	 	1. Keep relevant data in _data.
-		//		2. Create new chorus object: "var chorus = new Chorus({params})"
-		//				params can be chromecast (boolean) or server (string), where server is the chorus server url
-		//		3. Implement chorus.render(data, fresh) that renders _data accordingly 
-		//				(fresh is boolean which is true when rendering data for the first time, optional)
-		// 		4. Use chorus.update() whenever data is updated.
-		// 		5. Append chorus.nav to appropriate div with chorus.append("div"), default is body
-		//				appending will set everything into motion! so everything should be declared before this
-		// 		6. If desired, add handlers to chorus.nav.on(event, obj) with jQuery
 
-		var chorus = new Chorus({chromecast: true});
+	<script>
+		var count = 0; // Basic counter
+		// Alternatively, use {count: 0} for object reference copy
+
+		// Chorus implementation:
+		// 	0. Include chorus.css, jQuery, Socket.io, chorus.js, and Cast_Sender v1 API (if using Chromecast)
+		//	1. Create new chorus object: "var chorus = new Chorus({chromecast: boolean, server: string, data: object, clone: boolean})"
+		//		chromecast (boolean): whether chromecast will be invoked (default: false)
+		//		server (string): where server is the chorus server url (default: same host as current page)
+		//		data (any): initial data (default: undefined)
+		//		clone (boolean): whether the data will be copied by value (true) or reference (false) if it is an object, (default: false)
+		//		
+		//	2. Implement chorus.render(data, fresh) that renders data accordingly
+		//		(fresh is boolean which is true when rendering data for the first time, optional)
+		// 	3. Use chorus.update(data, clone=chorus.clone) whenever data is updated (or if there's a reference object link, chorus.update() is fine)
+		//		this updates the data store
+		//		set clone=true to copy by value instead of reference, clone defaults to the value upon initialization
+		// 	4. Append chorus.nav to appropriate div with chorus.append("div"), default is body
+		// 	5. If desired, add additional handlers to chorus.nav.on(event, obj) with jQuery
+
+		var chorus = new Chorus({chromecast: true, data: count});
 		chorus.render = function(data) {
 			$("#main").html(data);
-			_data = data;
+			count = data;
 		}
 		chorus.append();
 
 		function add() {
-			_data++;
-			$("#main").html(_data);
-			chorus.update();
+			count++;
+			$("#main").html(count);
+			chorus.update(count); // Since count is a number, it's not stored by reference, so we need to update chorus's data 
 		}
 	</script>
 </body>
