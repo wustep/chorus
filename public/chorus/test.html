@@ -42,11 +42,12 @@
 
 		// Chorus implementation:
 		// 	0. Include chorus.css, jQuery, Socket.io, chorus.js, and Cast_Sender v1 API (if using Chromecast)
-		//	1. Create new chorus object: "var chorus = new Chorus({chromecast: boolean, server: string, data: object, clone: boolean})"
+		//	1. Create new chorus object: "var chorus = new Chorus({chromecast: boolean, server: string, data: object, clone: boolean, debounce: integer})"
 		//		chromecast (boolean): whether chromecast will be invoked (default: false)
 		//		server (string): where server is the chorus server url (default: same host as current page)
 		//		data (any): initial data (default: undefined)
 		//		clone (boolean): whether the data will be copied by value (true) or reference (false) if it is an object, (default: false)
+		//		debounce (int): miliseconds to debounce update calls, default 500 
 		//		
 		//	2. Implement chorus.render(data, fresh) that renders data accordingly
 		//		(fresh is boolean which is true when rendering data for the first time, optional)

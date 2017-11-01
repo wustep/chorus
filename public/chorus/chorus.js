@@ -20,6 +20,24 @@ if (typeof jQuery == 'undefined') {
 		return decodeURIComponent(results[2].replace(/\+/g, " "));
 	}
 
+	/* debounce(func, wait, immediate)
+		Underscore.js's debounce function, used to rate limit function
+	*/
+	function debounce(func, wait, immediate) {
+		var timeout;
+		return function() {
+			var context = this, args = arguments;
+			var later = function() {
+				timeout = null;
+				if (!immediate) func.apply(context, args);
+			};
+			var callNow = immediate && !timeout;
+			clearTimeout(timeout);
+			timeout = setTimeout(later, wait);
+			if (callNow) func.apply(context, args);
+		};
+	};
+
 	let chorusInitialized = false; // Only allow 1 instance of Chorus, otherwise funky stuff might happen
 
 	/* Chorus({server, chromecast})
@@ -55,6 +73,7 @@ if (typeof jQuery == 'undefined') {
 		this.room = "ERR"; // Default room to "ERR"
 		this.nav = $("<nav id='chorus-nav'></nav>");
 		this.chromecast = ('chromecast') in params ? params.chromecast : '';
+		this.debounce = ('debounce' in params) ? params.debounce : 300;
 
 		// Chorus update functions
 
@@ -62,7 +81,7 @@ if (typeof jQuery == 'undefined') {
 			emits socket message to push to main display
 			[this should be called by client whenever data is updated]
 		*/
-		this.update = function(data, clone=this.clone) { // chorus.update() returns 1 if pushed to main, 0 otherwise
+		this.update = debounce(function(data, clone=this.clone) { // chorus.update() returns 1 if pushed to main, 0 otherwise
 			if (typeof data != 'undefined') { // Don't replace if undefined
 				this.data = (typeof data == 'object' && clone) ? JSON.parse(JSON.stringify(data)) : data;
 			}
@@ -71,7 +90,7 @@ if (typeof jQuery == 'undefined') {
 				return 1;
 			}
 			return 0;
-		}
+		}, this.debounce)
 
 		/* chorus.render()
 			reports error, as this function should be overriden by client implementation
