@@ -6,7 +6,7 @@
 	<title>Chorus Chromecast Receiver</title>
 	<style> <!-- Styling to make iframe take full page -->
 	    body, html {
-      		margin: 0; padding: 0; height: 100%; overflow: hidden; 
+      		margin: 0; padding: 0; height: 100%; overflow: hidden;
         }
         #content {
             position:absolute; left: 0; right: 0; bottom: 0; top: 0px;
@@ -22,12 +22,12 @@
 		<form id="chorus-cast-form" target="chorus-body" method="get">
 			<input type="hidden" id="chorus-follow-room" name="chorusFollowRoom" value="ERR"/>
 		</form>
-		
-		<!-- Chorus iframe -- uses link from Chromecast message and appends chorusFollowRoom to enter correct room -->
+
+		<!-- Chorus iframe: uses link from Chromecast message and appends chorusFollowRoom to enter correct room -->
 		<iframe id="chorus-body" name="chorus-body" width="100%" height="100%" frameborder="0">
 		</iframe>
 	</div>
-	
+
  	<script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js"></script>
 	<script type="text/javascript">
 		window.onload = function() {

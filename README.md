@@ -15,7 +15,7 @@ multiple device data viz coordination with socket.io and express
 
 **Leaflet**: Leaflet.js map and draw tools
 
-- note, only leaflet was transferred to chorus v1.1, rest are still v0 and stored in the _v0 folder.
+- Note: only MIDI / Leaflet so far is available in main chorus. Use /v0/ to run others. Rest are being ported!
 
 # usage
-See public/chorus/test.html for an example usage and rules
+- See public/chorus/test.html for an example usage and rules

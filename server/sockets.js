@@ -4,9 +4,12 @@
 
 const socketIO = require('socket.io');
 
-// TODO: Bring back server-sided data generation in custom command files? This isn't necessary in the demos but might be, like in v0
+// TODO? Bring back server-sided data generation in custom command files? This isn't necessary in the demos but might be, like in v0
 
-// Load custom commands
+/* Load custom commands
+	Any customs loaded should be in the .ENV file, separated by commas, with paths starting from the root
+ 	e.g. "CUSTOMS=server/demo/midi/midi.js"
+*/
 let customsLoaded = false;
 let commands = {};
 if (process.env.customs) {
@@ -30,7 +33,7 @@ if (process.env.customs) {
 	}
 }
 
-let rooms = new Map();
+let rooms = new Map(); // Data store with map of rooms
 
 /* log(room, id, msg, force)
 	logs message to console if DEBUG is set to true in .env
