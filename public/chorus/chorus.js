@@ -40,11 +40,14 @@ if (typeof jQuery == 'undefined') {
 
 	let chorusInitialized = false; // Only allow 1 instance of Chorus, otherwise funky stuff might happen
 
-	/* Chorus({server, chromecast})
+	/* Chorus({server, chromecast, namespace, hide})
 		create instance of chorus, optionally supply server URL or set chromecast to true
 		params:
 			server: string, url of server hosting chorus, only needed if client is on different host
-			chromecast: bool, whether or not to include chromecast logic and nav buttons
+			chromecast: bool, default false, whether or not to include chromecast logic and nav buttons
+			namespace: identifier for the type of chatroom, used to distinguish which command set to use
+			TODO: hide: bool, hides nav on join, default false
+			TODO: cares: bool, default true, doesn't care about data in this instance, so it can send calls but not receive them
 	*/
 	var Chorus = function(params={}) {
 		/* Accessable:
@@ -56,6 +59,7 @@ if (typeof jQuery == 'undefined') {
 			.nav (jQuery object, of #chorus-nav)
 			.chromecast (bool, of whether chromecast is enabled)
 		 	.appended (bool, by default, Chorus allows a single append,)
+			.namespace (namespace used for custom commands)
 			.update(), render(), append()
 		*/
 
@@ -72,8 +76,9 @@ if (typeof jQuery == 'undefined') {
 		this.display = -1; // Default display to none, 0 = detached from main, 1 = main
 		this.room = "ERR"; // Default room to "ERR"
 		this.nav = $("<nav id='chorus-nav'></nav>");
-		this.chromecast = ('chromecast') in params ? params.chromecast : '';
+		this.chromecast = ('chromecast' in params) ? params.chromecast : false;
 		this.debounce = ('debounce' in params) ? params.debounce : 300;
+		this.namespace = ('namespace' in params) ? params.namespace : false;
 
 		// Chorus update functions
 
@@ -115,12 +120,23 @@ if (typeof jQuery == 'undefined') {
 					console.log("[Chorus] Appended to: " + obj);
 					return 1;
 				} else {
-					console.log("[Chorus] Error - Attempted to append chorus nav to DOM object (" + obj + ") which does not exist.")
+					console.error("[Chorus] Error - Attempted to append chorus nav to DOM object (" + obj + ") which does not exist.")
 				}
 			} else {
 				console.error("[Chorus] Error - Attempting to append chorus nav more than once.")
 			}
 			return 0;
+		}
+
+		/* chorus.command(command, data)
+		  send a custom socket io command
+		*/
+		this.command = function(command, params) {
+			if (this.namespace) {
+				this.socket.emit("command", {command: command, params: params, namespace: this.namespace});
+			} else {
+				console.error("[Chorus] Error - attempted to use custom command without a set namespace.")
+			}
 		}
 
 		// Chorus initialization and sockets
