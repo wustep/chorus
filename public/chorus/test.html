@@ -62,7 +62,7 @@
 		// 	5. If desired, add additional handlers to chorus.nav.on(event, obj) with jQuery
 
 		var chorus = new Chorus({chromecast: true, data: count,
-														 care: true, hide: false, clone: false}); // The later 3 parameters are set to their defaults in this example
+														 care: true, hide: false, clone: false, debounce: 500}); // The later 3 parameters are set to their defaults in this example
 		chorus.render = function(data) {
 			$("#main").html(data);
 			count = data;

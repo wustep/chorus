@@ -318,7 +318,7 @@ if (typeof jQuery == 'undefined') {
 					chorus.nav.find("#chorus-room-number").html(chorus.room);
 					console.log("[Chorus] Cast success: " + chorus.room);
 					if (chorus.hides) {
-						chorus.nav.hide();
+						chorus.nav.fadeOut(1000);
 						console.log("[Chorus] Hiding nav");
 					}
 				});
@@ -397,7 +397,7 @@ if (typeof jQuery == 'undefined') {
 				chorus.nav.find("#chorus-room-number").html(chorus.room); // Replace room # with proper #
 				console.log("[Chorus] Follow success: " + chorus.room);
 				if (chorus.hides) {
-					chorus.nav.hide();
+					chorus.nav.fadeOut(1000);
 					console.log("[Chorus] Hiding nav");
 				}
 			});
