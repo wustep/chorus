@@ -44,10 +44,10 @@ if (typeof jQuery == 'undefined') {
 		create instance of chorus, optionally supply server URL or set chromecast to true
 		params:
 			server: string, url of server hosting chorus, only needed if client is on different host
-			chromecast: bool, default false, whether or not to include chromecast logic and nav buttons
-			namespace: identifier for the type of chatroom, used to distinguish which command set to use
-			TODO: hide: bool, hides nav on join, default false
-			TODO: cares: bool, default true, doesn't care about data in this instance, so it can send calls but not receive them
+			chromecast (false): bool, default false, whether or not to include chromecast logic and nav buttons
+			namespace (null): identifier for the type of chatroom, used to distinguish which command set to use
+			hide: bool (false), hides nav on join, default false
+			care: bool (true), whether it cares about the data store, so it receives calls as well as sends
 	*/
 	var Chorus = function(params={}) {
 		/* Accessable:
@@ -57,9 +57,8 @@ if (typeof jQuery == 'undefined') {
 			.display (int, none / main / detached)
 			.room (string, room name)
 			.nav (jQuery object, of #chorus-nav)
-			.chromecast (bool, of whether chromecast is enabled)
-		 	.appended (bool, by default, Chorus allows a single append,)
-			.namespace (namespace used for custom commands)
+			..namespace (string or false, custom namespace)
+			.chromecasts .cares, .hides (bool, parameters)
 			.update(), render(), append()
 		*/
 
@@ -76,9 +75,11 @@ if (typeof jQuery == 'undefined') {
 		this.display = -1; // Default display to none, 0 = detached from main, 1 = main
 		this.room = "ERR"; // Default room to "ERR"
 		this.nav = $("<nav id='chorus-nav'></nav>");
-		this.chromecast = ('chromecast' in params) ? params.chromecast : false;
+		this.chromecasts = ('chromecast' in params) ? params.chromecast : false;
 		this.debounce = ('debounce' in params) ? params.debounce : 300;
 		this.namespace = ('namespace' in params) ? params.namespace : false;
+		this.cares = ('care' in params && !params.care) ? false : true;
+		this.hides = ('hide' in params && params.hide) ? true : false;
 
 		// Chorus update functions
 
@@ -144,12 +145,13 @@ if (typeof jQuery == 'undefined') {
 		let chorus = this; // Use this to refer to chorus instance from here on to make simpler for sockets, etc.
 		$(function() { // Use JQuery to wait till rest of document loaded + IIFE, might be redundant
 			// navNone: Default navbar with [Cast] and [Follow] buttons
-			let navNone = $("<div><button id='chorus-cast'>Cast</button> <button id='chorus-follow'>Follow</button></div>");
+			let castBtn = (chorus.cares) ? "<button id='chorus-cast'>Cast</button> " : "";
+			let navNone = $("<div>"+castBtn+"<button id='chorus-follow'>Follow</button></div>");
 			// chromeCasting: Set to true when attempting to cast to Chromecast
 			let chromeCasting = false; // TODO: Check this logic across the board and see if redundant / consistent
 
 			/* Chorus-Chromecast logic: initialize chromecast and set up buttons */
-			if (chorus.chromecast && typeof(chrome) != 'undefined') {
+			if (chorus.cares && chorus.chromecasts && typeof(chrome) != 'undefined') {
 				// Append cast button to nav
 				navNone.append(" <button id='chorus-chromecast-follow' disabled='true'>Chromecast</button>");
 
@@ -240,16 +242,21 @@ if (typeof jQuery == 'undefined') {
 						}, onError);
 					}
 				}
-			} else if (chorus.chromecast) {
-				console.error("[Chorus] Chromecast integration was requested but cast sender API was not included.");
-				chorus.chromecast = false;
+			} else if (chorus.chromecasts) {
+				if (!chorus.cares) {
+					console.log("[Chorus] Chromecast integration was requested but care was set to false; non-caring clients cannot (chrome)cast.")
+				} else {
+					console.error("[Chorus] Chromecast integration was requested but cast sender API was not included.");
+				}
+				chorus.chromecasts = false;
 			} else {
-				chorus.chromecast = false;
+				chorus.chromecasts = false;
 			}
 
 			// Set up main and aux navigation button sets
 			// Chorus will swap between these and navNone
-			let navMain = $("<button id='chorus-display' value='main'>Detach</button> <button id='chorus-push' value='main'>Push to All</button></nav> <button id='chorus-exit'><span id='chorus-room'>Room: <span id='chorus-room-number'></span></span></button>");
+			let detachAndPushToAllBtns = (chorus.cares) ? "<button id='chorus-display' value='main'>Detach</button> <button id='chorus-push' value='main'>Push to All</button></nav>" : "";
+			let navMain = $(detachAndPushToAllBtns + " <button id='chorus-exit'><span id='chorus-room'>Room: <span id='chorus-room-number'></span></span></button>");
 			let navAux = $("<button id='chorus-display' value='aux'>Return</button> <button id='chorus-push' value='main'>Push to Main</button></nav> <button id='chorus-exit'><span id='chorus-room'>Room: <span id='chorus-room-number'></span></button></span>");
 
 			// Chorus follow, used for Chromecast receiver to access
@@ -265,7 +272,7 @@ if (typeof jQuery == 'undefined') {
 
 				// Simplify chorus-nav so it just has room #
 				navMain = $("<button id='chorus-exit'><span id='chorus-room'>Room: <span id='chorus-room-number'></span></button>");
-				navAux = navMain;
+				// If followRoom is used, the client will be stuck in that room
 				chorus.room = followRoom;
 			}
 
@@ -273,64 +280,91 @@ if (typeof jQuery == 'undefined') {
 			chorus.nav.html(navNone);
 
 			// Getting data for the first time or Aux -> Main
-			chorus.socket.on("get data", function (data) {
-				chorus.data = data;
-				chorus.render(data, true);
-			});
+			if (chorus.cares) {
+				chorus.socket.on("get data", function (data) {
+					chorus.data = data;
+					chorus.render(data, true);
+				});
 
-			// Render on push to main/all
-			chorus.socket.on("push all", function (data) {
-				chorus.data = data;
-				chorus.render(data);
-			});
-
-			chorus.socket.on("push main", debounce(function (data) {
-				if (!chorus.display) { // If on main
+				// Render on push to main/all
+				chorus.socket.on("push all", function (data) {
 					chorus.data = data;
 					chorus.render(data);
-				}
-			}, chorus.debounce));
+				});
 
-			// Cast button
-			chorus.nav.on("click", "#chorus-cast", function() {
-				let roomPrompt = prompt("Create room?");
-				if (roomPrompt != null && roomPrompt.length > 0) {
-					chorus.room = roomPrompt;
-					chorus.socket.emit("cast", { room: roomPrompt, data: chorus.data });
-					chorus.nav.find("#chorus-cast").prop("disabled", true);
-					chorus.nav.find("#chorus-follow").prop("disabled", true);
-					chorus.nav.find("#chorus-chromecast-follow").prop("disabled", true);
-				}
-			});
+				chorus.socket.on("push main", debounce(function (data) {
+					if (!chorus.display) { // If on main
+						chorus.data = data;
+						chorus.render(data);
+					}
+				}, chorus.debounce));
 
-			// Cast success/failure
-			chorus.socket.on("cast success", function() {
-				chorus.display = 0;
-				chorus.nav.html(navMain);
-				chorus.nav.find("#chorus-room-number").html(chorus.room);
-				console.log("[Chorus] Cast success: " + chorus.room);
-			});
-			chorus.socket.on("cast failure", function() {
-				alert("Cast failed, invalid or existing room: " + chorus.room);
-				console.log("[Chorus] Cast failed, invalid or existing room: " + chorus.room);
-				chorus.room = "ERR";
-				chorus.nav.find("#chorus-cast").prop("disabled", false);
-				chorus.nav.find("#chorus-follow").prop("disabled", false);
-				chorus.nav.find("#chorus-chromecast-follow").prop("disabled", false);
-			});
+				// Cast button
+				chorus.nav.on("click", "#chorus-cast", function() {
+					let roomPrompt = prompt("Create room?");
+					if (roomPrompt != null && roomPrompt.length > 0) {
+						chorus.room = roomPrompt;
+						chorus.socket.emit("cast", { room: roomPrompt, data: chorus.data });
+						chorus.nav.find("#chorus-cast").prop("disabled", true);
+						chorus.nav.find("#chorus-follow").prop("disabled", true);
+						chorus.nav.find("#chorus-chromecast-follow").prop("disabled", true);
+					}
+				});
+
+				// Cast success/failure
+				chorus.socket.on("cast success", function() {
+					chorus.display = 0;
+					chorus.nav.html(navMain);
+					chorus.nav.find("#chorus-room-number").html(chorus.room);
+					console.log("[Chorus] Cast success: " + chorus.room);
+					if (chorus.hides) {
+						chorus.nav.hide();
+						console.log("[Chorus] Hiding nav");
+					}
+				});
+				chorus.socket.on("cast failure", function() {
+					alert("Cast failed, invalid or existing room: " + chorus.room);
+					console.log("[Chorus] Cast failed, invalid or existing room: " + chorus.room);
+					chorus.room = "ERR";
+					chorus.nav.find("#chorus-cast").prop("disabled", false);
+					chorus.nav.find("#chorus-follow").prop("disabled", false);
+					chorus.nav.find("#chorus-chromecast-follow").prop("disabled", false);
+				});
+
+				/* Chorus - Chromecast sender logic */
+				if (chorus.chromecasts) {
+					chorus.nav.on("click", "#chorus-chromecast-follow", function () {
+						chromeCasting = true;
+						followPrompt();
+					});
+				}
+
+				// Display button
+				chorus.nav.on("click", "#chorus-display", function() {
+					chorus.display = 1 - chorus.display; // swap 1 to 0 and vice-versa
+					if (!chorus.display) { // Swapping Aux -> Main
+						chorus.socket.emit("get data"); // Obtain main's data
+						chorus.nav.html(navMain);
+					} else { // Don't try to obtain any data
+						chorus.nav.html(navAux);
+					}
+					chorus.nav.find("#chorus-room-number").html(chorus.room);
+				});
+
+				// Push button
+				chorus.nav.on("click", "#chorus-push", function() {
+					if (!chorus.display) { // Pushing Main -> All
+						chorus.socket.emit("push all", chorus.data);
+					} else { // Pushing Main -> All
+						chorus.socket.emit("push main", chorus.data);
+					}
+				});
+			}
 
 			// Follow button
 			chorus.nav.on("click", "#chorus-follow", function() {
 				followPrompt();
 			});
-
-			/* Chorus - Chromecast sender logic */
-			if (chorus.chromecast) {
-				chorus.nav.on("click", "#chorus-chromecast-follow", function () {
-					chromeCasting = true;
-					followPrompt();
-				});
-			}
 
 			// Prompt user for follow and send socket on valid completion
 			function followPrompt() { // Used in Chromecast prompt, so made into function
@@ -354,12 +388,18 @@ if (typeof jQuery == 'undefined') {
 
 			// Follow success/failure
 			chorus.socket.on("follow success", function(data) {
-				chorus.data = data; // Replace data
-				chorus.render(data, true); // Re-render display from data
+				if (chorus.cares) {
+					chorus.data = data; // Replace data
+					chorus.render(data, true); // Re-render display from data
+				}
 				chorus.display = 0; // Set display to main
 				chorus.nav.html(navMain); // Change navbar to main
 				chorus.nav.find("#chorus-room-number").html(chorus.room); // Replace room # with proper #
 				console.log("[Chorus] Follow success: " + chorus.room);
+				if (chorus.hides) {
+					chorus.nav.hide();
+					console.log("[Chorus] Hiding nav");
+				}
 			});
 			chorus.socket.on("follow failure", function() {
 				alert("Follow failed, invalid room: " + chorus.room);
@@ -370,27 +410,6 @@ if (typeof jQuery == 'undefined') {
 				chorus.nav.find("#chorus-chromecast-follow").prop("disabled", false);
 				console.log("[Chorus] Follow failed, invalid room: " + followRoom);
 				chromeCasting = false;
-			});
-
-			// Display button
-			chorus.nav.on("click", "#chorus-display", function() {
-				chorus.display = 1 - chorus.display; // swap 1 to 0 and vice-versa
-				if (!chorus.display) { // Swapping Aux -> Main
-					chorus.socket.emit("get data"); // Obtain main's data
-					chorus.nav.html(navMain);
-				} else { // Don't try to obtain any data
-					chorus.nav.html(navAux);
-				}
-				chorus.nav.find("#chorus-room-number").html(chorus.room);
-			});
-
-			// Push button
-			chorus.nav.on("click", "#chorus-push", function() {
-				if (!chorus.display) { // Pushing Main -> All
-					chorus.socket.emit("push all", chorus.data);
-				} else { // Pushing Main -> All
-					chorus.socket.emit("push main", chorus.data);
-				}
 			});
 
 			// Exit button

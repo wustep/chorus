@@ -47,8 +47,12 @@
 		//		server (string): where server is the chorus server url (default: same host as current page)
 		//		data (any): initial data (default: undefined)
 		//		clone (boolean): whether the data will be copied by value (true) or reference (false) if it is an object, (default: false)
-		//		debounce (int): miliseconds to debounce update calls, default 500 
-		//		
+		//		debounce (int): miliseconds to debounce update calls, (default: 500)
+		//		care (bool): whether or not this page cares about receiving data, cannot cast, push, or detach if false (default: true)
+		//		hide (bool): whether or not to hide the nav after a successful join/cast (default: false)
+		//
+		// 	(A non-caring client has care=false, is stuck in Main, and doesn't receive or send any data except through custom commands)
+		//
 		//	2. Implement chorus.render(data, fresh) that renders data accordingly
 		//		(fresh is boolean which is true when rendering data for the first time, optional)
 		// 	3. Use chorus.update(data, clone=chorus.clone) whenever data is updated (or if there's a reference object link, chorus.update() is fine)
@@ -57,7 +61,8 @@
 		// 	4. Append chorus.nav to appropriate div with chorus.append("div"), default is body
 		// 	5. If desired, add additional handlers to chorus.nav.on(event, obj) with jQuery
 
-		var chorus = new Chorus({chromecast: true, data: count});
+		var chorus = new Chorus({chromecast: true, data: count,
+														 care: true, hide: false, clone: false}); // The later 3 parameters are set to their defaults in this example
 		chorus.render = function(data) {
 			$("#main").html(data);
 			count = data;
@@ -67,7 +72,7 @@
 		function add() {
 			count++;
 			$("#main").html(count);
-			chorus.update(count); // Since count is a number, it's not stored by reference, so we need to update chorus's data 
+			chorus.update(count); // Since count is a number, it's not stored by reference, so we need to update chorus's data
 		}
 	</script>
 </body>
