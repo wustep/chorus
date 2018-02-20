@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/player', (req, res) => {
-	res.render('player.hbs', {		
+	res.render('player.hbs', {
 		pageTitle: 'MIDI Player'
   	});
 });
@@ -56,7 +56,7 @@ const d3 = require('d3');
 const fs = require("fs");
 
 var activeNotes = new Array(88); // Keep track of time at which notes are played
-const notesDefault = [{key: "A", duration: 0}, {key: "Bb", duration: 0}, {key: "B", duration: 0}, {key: "C", duration: 0}, {key: "Db", duration: 0}, {key: "D", duration: 0}, 
+const notesDefault = [{key: "A", duration: 0}, {key: "Bb", duration: 0}, {key: "B", duration: 0}, {key: "C", duration: 0}, {key: "Db", duration: 0}, {key: "D", duration: 0},
 		{key: "Eb", duration: 0}, {key: "E", duration: 0}, {key: "F", duration: 0}, {key: "Gb", duration: 0}, {key: "G", duration: 0}, {key: "Ab", duration: 0}];
 
 module.exports = {
@@ -64,7 +64,7 @@ module.exports = {
 		scheme: 0, // 0 = notes disappear immediately, 1 = notes stay fade
 		notes: JSON.parse(JSON.stringify(notesDefault)) // Copy notes array
 	},
-	
+
 	_generateOnServer: true, // Required, no default
 
 	_commands: {
@@ -84,11 +84,11 @@ module.exports = {
 			emitBroadcast: true
 		}
 	},
-	
+
 	create: (callback) => {
 		callback(null, module.exports._data);
 	},
-	
+
 	noteOn: (params, callback) => { // TODO: Possibly validate input?
 		const adjNote = params.note - 21;
 		if (activeNotes[adjNote] === undefined || activeNotes[adjNote] === -1) { // Check that note is currently not already played
@@ -96,7 +96,7 @@ module.exports = {
 		}
 		return callback(null, params);
 	},
-	
+
 	noteOff: (params, callback) => { // If C1 and C2 are being played, double count them.
 		const adjNote = params.note - 21;
 		const key = adjNote % 12;
