@@ -15,12 +15,11 @@ for (var i = 0; i < colorMap.length; i++) {
 }
 
 /* Request MIDI access - https://webaudio.github.io/web-midi-api/ */
-
 var midi = null;
 var hasInput = false;
 var colorElements = [];
-
-var chorus = new Chorus({chromecast: true})
+var chorus = new Chorus({chromecast: true, hide: true})
+chorus.append();
 
 $(function() {
 	navigator.requestMIDIAccess().then(
@@ -107,12 +106,11 @@ $(function() {
 	}
 
 	/* Socket IO triggers */
-	var socket = io();
-	socket.on("noteOn", function(d) {
+	chorus.socket.on("noteOn", function(d) {
 		console.log(d);
 		noteOn(d.note, d.velocity);
 	});
-	socket.on("noteOff", function(d) {
+	chorus.socket.on("noteOff", function(d) {
 		noteOff(d.note);
 	});
 
@@ -129,7 +127,7 @@ $(function() {
 			if (sound)
 				MIDI.noteOn(0, note, velocity, 0);
 			if (emit)
-				socket.emit('command', { name: "noteOn", params: { note: note, velocity: velocity }});
+				chorus.command("noteOn", { note: note, velocity: velocity });
 		}
 	}
 
@@ -145,7 +143,7 @@ $(function() {
 			if (sound)
 				MIDI.noteOff(0, note, 0);
 			if (emit)
-				socket.emit('command', { name: "noteOff", params: { note: note }});
+				chorus.command("noteOff", { note: note });
 		}
 	}
 });

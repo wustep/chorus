@@ -10,27 +10,28 @@ hbs.registerPartials(__dirname + '/views/partials');
 app.set('view engine', 'hbs');
 app.set('views', __dirname + '/views/')
 
-app.get('/demos/midi/', (req, res) => {
+const demoPath = "/demo/midi/";
+
+app.get(demoPath, (req, res) => {
 	res.render('index.hbs', {
 		pageTitle: 'Keyboard',
 	});
 });
 
-app.get('/demos/midi/player', (req, res) => {
+app.get(demoPath + 'player', (req, res) => {
 	res.render('player.hbs', {
 		pageTitle: 'MIDI Player'
   });
 });
 
-app.get('/demos/midi/notes', (req, res) => {
+app.get(demoPath + 'notes', (req, res) => {
 	res.render('notes.hbs', {
 		pageTitle: 'Notes Played'
 	});
 });
 
-var currentNote = -1;
 
-app.get('/demos/midi/note/:note', (req, res) => { // TODO: Also add allowing user to do /note/A0 instead of /0, etc.
+app.get(demoPath + 'note/:note', (req, res) => { // TODO: Also add allowing user to do /note/A0 instead of /0, etc.
 	res.render('note.hbs', {
 		pageTitle: 'Note: ' + utils.numToKey(req.params.note),
 		note: req.params.note,
@@ -38,7 +39,9 @@ app.get('/demos/midi/note/:note', (req, res) => { // TODO: Also add allowing use
 	});
 });
 
-app.get('/demos/midi/note', (req, res) => { // Give client incremented note
+// When going to /note, give client an incremented note, deciding for them what the note will be
+var currentNote = -1;
+app.get(demoPath + 'note', (req, res) => {
 	if (currentNote < 88) {
 		currentNote++;
 	} else {
@@ -54,7 +57,6 @@ app.get('/demos/midi/note', (req, res) => { // Give client incremented note
 
 /* Data generator */
 
-/* TODO: Unused rn not sure what to do next */
 const notesDefault = [{key: "A", duration: 0}, {key: "Bb", duration: 0}, {key: "B", duration: 0}, {key: "C", duration: 0}, {key: "Db", duration: 0}, {key: "D", duration: 0},
 		{key: "Eb", duration: 0}, {key: "E", duration: 0}, {key: "F", duration: 0}, {key: "Gb", duration: 0}, {key: "G", duration: 0}, {key: "Ab", duration: 0}];
 
