@@ -19,3 +19,18 @@ multiple device data viz coordination with socket.io and express
 
 # usage
 - See public/chorus/test.html for an example usage and rules
+
+# ENV
+```
+# port: Express server port
+port=3000
+
+# client: Serve client files via express
+client=demo/midi/public
+
+# customs: Serve custom server files
+customs=demo/midi/midi.js
+
+# debug: Serve all events if true, otherwise serve only errors
+debug=true
+```

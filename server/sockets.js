@@ -39,7 +39,7 @@ let rooms = new Map(); // Data store with map of rooms
 	logs message to console if DEBUG is set to true in .env
 */
 function log(room, id, msg, force) {
-	if (process.env.DEBUG === 'true' || force) {
+	if (process.env.debug === 'true' || force) {
 		let roomNum = "";
 		if (room !== null && room !== undefined) roomNum = ` [${room}]`; // Exclude room in logs when room is yet to be set
 		console.log(`[${id}]${roomNum} ${msg}`);
