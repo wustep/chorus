@@ -411,12 +411,12 @@ if (typeof jQuery == 'undefined') {
 			});
 			chorus.socket.on("follow failure", function() {
 				alert("Follow failed, invalid room: " + chorus.room);
+				console.log("[Chorus] Follow failed, invalid room: " + chorus.room);
 				chorus.room = "ERR";
 				// Re-enable all buttons (which were disabled during the follow)
 				chorus.nav.find("#chorus-cast").prop("disabled", false);
 				chorus.nav.find("#chorus-follow").prop("disabled", false);
 				chorus.nav.find("#chorus-chromecast-follow").prop("disabled", false);
-				console.log("[Chorus] Follow failed, invalid room: " + followRoom);
 				chromeCasting = false;
 			});
 
