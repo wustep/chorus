@@ -139,14 +139,17 @@ if (typeof jQuery == 'undefined') {
 		*/
 		this.command = function(command, params) {
 			if (this.namespace) {
-				this.socket.emit("command", {command: command, params: params, namespace: this.namespace});
+				if (this.room != "ERR") {
+					this.socket.emit("command", {command: command, params: params, namespace: this.namespace});
+				} else {
+					console.log(`[Chorus] Sent command: '${command}' but was not in a room`);
+				}
 			} else {
-				console.error("[Chorus] Error - attempted to use custom command without a set namespace.")
+				console.error(`[Chorus] Error - attempted to use command '${command}' without a set namespace.`);
 			}
 		}
 
 		// Chorus initialization and sockets
-
 		let chorus = this; // Use this to refer to chorus instance from here on to make simpler for sockets, etc.
 		$(function() { // Use JQuery to wait till rest of document loaded + IIFE, might be redundant
 			// navNone: Default navbar with [Cast] and [Follow] buttons

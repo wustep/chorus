@@ -1,5 +1,6 @@
 /* D3 bar chart revised from https://bl.ocks.org/mbostock/3885304 */
 
+var chorus = new Chorus({chromecast: true, hide: true, append: true})
 $(function() {
 	var colorArray = ["#ff0000", "#ff8000", "#ffbf00", "#ffff00", "#bfff00", "#00ff00", "#00ffbf", "#0080ff", "#0000ff", "#4000ff", "#8000ff", "#ff00ff"];
 
@@ -17,8 +18,7 @@ $(function() {
 	var socket = io();
 	var data = [];
 	var generated = false;
-	socket.emit('get data');
-	socket.on('get data', function(_data) {
+	chorus.render = function(_data) {
 		data = _data.notes;
 		var total = 0;
 		for (var i = 0; i < data.length; i++) {
@@ -62,9 +62,9 @@ $(function() {
 			.attr("y", function(d) { return y((total > 0) ? d.duration / total : 0); })
 			.attr("height", function(d) { return height - y((total > 0) ? d.duration / total : 0); });
 		}
-	});
-	socket.on('noteOff', function () {
-		socket.emit('get data'); // TODO: add timer to stagger this.
+	};
+	chorus.socket.on('noteOff', function () {
+		chorus.update(); // TODO: add timer to stagger this.
 	});
 	$("#reset").on('click', function() {
 		socket.emit('command', {name: "reset"});

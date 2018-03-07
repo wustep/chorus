@@ -144,7 +144,7 @@ module.exports = {
 									}
 									commands[d.namespace][d.command](rooms.get(roomid), d.params, function (err, result) {
 										if (err) { // if command callsback an error
-											log("Error: [Custom] " + err);
+											log(roomid, socket.conn.id, "Error: [Custom] " + err, true);
 											return;
 										} else {
 											var add = ""; // Additional console info
@@ -168,7 +168,7 @@ module.exports = {
 													add += ` Replaced data in room, informed: (${informed}).`
 												}
 												if ("emit" in config) {
-													for (emit of emitConfig["emit"]) {
+													for (emit of config["emit"]) {
 														if (emit.sender) {
 															socket.emit(emit.command, result);
 															add += " Sent command (" + emit.command + ") to client.";

@@ -101,8 +101,8 @@ module.exports = {
 	noteOff: (data, params, callback) => { // If C1 and C2 are being played, double count them.
 		const adjNote = params.note - 21;
 		const key = adjNote % 12;
-		if (typeof data === 'object' && 'activeNotes' in data && data.activeNotes[adjNote] !== undefined && data.activeNotes[adjNote] !== -1) {
-			data.notes[key].duration += process.uptime() - activeNotes[adjNote];
+		if (typeof data === 'object' && 'activeNotes' in data && data.activeNotes[adjNote] !== undefined && data.activeNotes[adjNote] !== -1 && 'notes' in data) {
+			data.notes[key].duration += process.uptime() - data.activeNotes[adjNote];
 			data.activeNotes[adjNote] = -1;
 		} else {
 			return callback("ActiveNotes missing from data");
@@ -112,7 +112,7 @@ module.exports = {
 
 	reset: (data, params, callback) => {
 		data.notes = JSON.parse(JSON.stringify(notesDefault)); // Copy default
-		data.activeNotes = notesDefault;
+		data.activeNotes = new Array(88);
 		callback(null, data);
 	}
 };

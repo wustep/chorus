@@ -18,8 +18,12 @@ for (var i = 0; i < colorMap.length; i++) {
 var midi = null;
 var hasInput = false;
 var colorElements = [];
-var chorus = new Chorus({chromecast: true, hide: true})
-chorus.append();
+var defaultData = { activeNotes: new Array(88),
+									  notes: [{key: "A", duration: 0}, {key: "Bb", duration: 0}, {key: "B", duration: 0}, {key: "C", duration: 0}, {key: "Db", duration: 0}, {key: "D", duration: 0},
+														{key: "Eb", duration: 0}, {key: "E", duration: 0}, {key: "F", duration: 0}, {key: "Gb", duration: 0}, {key: "G", duration: 0}, {key: "Ab", duration: 0}]};
+var chorus = new Chorus({chromecast: true, hide: true, append: true, namespace: "midi", data: defaultData})
+// Note: Keyboard page does not keep an up-to-date copy of the room's data, since it does not have to for visualization purposes
+// It just sends the default values when casted. This means that the notes statistics will only log what has been played while casted.
 
 $(function() {
 	navigator.requestMIDIAccess().then(
@@ -33,7 +37,7 @@ $(function() {
 			if (hasInput) {
 				console.log("MIDI input ready!");
 			} else {
-				console.error("MIDI ready but no input");
+				console.log("MIDI ready but no input");
 			}
 		},
 		function() {
@@ -41,7 +45,7 @@ $(function() {
 		}
 	);
 
-	function onMIDIMessage( event ) {
+	function onMIDIMessage(event) {
 		switch (event.data[0] & 0xf0) {
 			case 0x90: // Note on
 				//console.log(event);
@@ -105,14 +109,24 @@ $(function() {
 		});
 	}
 
-	/* Socket IO triggers */
+	/* Chorus socket command striggers */
 	chorus.socket.on("noteOn", function(d) {
-		console.log(d);
 		noteOn(d.note, d.velocity);
 	});
 	chorus.socket.on("noteOff", function(d) {
 		noteOff(d.note);
 	});
+
+	/* Chorus render: populate keyboard with colored keys if scheme is lit */
+	chorus.render = function(d) {
+		if (typeof d === "object" && "activeNotes" in d && "notes" in d) {
+			for (let i = 0; i < d.activeNotes.length; i++) {
+				if (d.activeNotes[i] !== null) {
+					noteOff(i + 21, false);
+				}
+			}
+		}
+	}
 
 	/* Note on / off */
 
@@ -137,6 +151,8 @@ $(function() {
 		if (d) {
 			if (scheme === 0)
 				d.style.background = "";
+			else // This is here, since on render, they won't have a color
+				d.style.background = colorMap[key];
 			if (scheme === 1)
 				d.style.opacity = 0.6;
 			d.classList.remove("pressed");
