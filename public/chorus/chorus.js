@@ -48,6 +48,7 @@ if (typeof jQuery == 'undefined') {
 			namespace (null): identifier for the type of chatroom, used to distinguish which command set to use
 			hide: bool (false), hides nav on join, default false
 			care: bool (true), whether it cares about the data store, so it receives calls as well as sends
+			append: bool (false), append to body after initialization
 	*/
 	var Chorus = function(params={}) {
 		/* Accessable:
@@ -80,6 +81,7 @@ if (typeof jQuery == 'undefined') {
 		this.namespace = ('namespace' in params) ? params.namespace : false;
 		this.cares = ('care' in params && !params.care) ? false : true;
 		this.hides = ('hide' in params && params.hide) ? true : false;
+		this.appended = false;
 
 		// Chorus update functions
 
@@ -112,7 +114,6 @@ if (typeof jQuery == 'undefined') {
 			returns 1 on success and 0 on fail
 			e.g. chorus.append("div"), .append("#navigation"), .append("#sidebar"), etc.
 		*/
-		this.appended = false;
 		this.append = function(obj="body") {
 			if (!this.appended) {
 				if ($(obj).length) { // If object exists
@@ -127,6 +128,10 @@ if (typeof jQuery == 'undefined') {
 				console.error("[Chorus] Error - Attempting to append chorus nav more than once.")
 			}
 			return 0;
+		}
+
+		if ('append' in params && params.append) {
+			this.append();
 		}
 
 		/* chorus.command(command, data)

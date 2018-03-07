@@ -50,6 +50,7 @@
 		//		debounce (int): miliseconds to debounce update calls, (default: 500)
 		//		care (bool): whether or not this page cares about receiving data, cannot cast, push, or detach if false (default: true)
 		//		hide (bool): whether or not to hide the nav after a successful join/cast (default: false)
+		//		append (bool): append after initialization (default: false)
 		//
 		// 	(A non-caring client has care=false, is stuck in Main, and doesn't receive or send any data except through custom commands)
 		//
@@ -62,12 +63,12 @@
 		// 	5. If desired, add additional handlers to chorus.nav.on(event, obj) with jQuery
 
 		var chorus = new Chorus({chromecast: true, data: count,
-														 care: true, hide: false, clone: false, debounce: 500}); // The later 3 parameters are set to their defaults in this example
+														 care: true, hide: false, clone: false, debounce: 500, append: true}); // These later parameters are set to their defaults in this example
 		chorus.render = function(data) {
 			$("#main").html(data);
 			count = data;
 		}
-		chorus.append();
+		//chorus.append("body"); // or set (append: true) in params
 
 		function add() {
 			count++;
