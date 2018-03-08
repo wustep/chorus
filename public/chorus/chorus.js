@@ -69,7 +69,7 @@ if (typeof jQuery == 'undefined') {
 		}
 		chorusInitialized = true;
 
-		if (!'data' in params) {
+		if (!'data' in params && (!'cares' in params || params.cares)) { // Give default data warning if caring and data not set
 			console.log("[Chorus] No default data parameter set for chorus - defaulting to empty object: {} - may cause issues down the road.")
 		}
 
