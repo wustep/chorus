@@ -1,8 +1,7 @@
 /* Parameters */
 
-var scheme = 1; // Scheme = 0 = notes disappear, 1 = notes stay faded
 var colorArray = ["#ff0000", "#ff8000", "#ffbf00", "#ffff00", "#bfff00", "#00ff00", "#00ffbf", "#0080ff", "#0000ff", "#4000ff", "#8000ff", "#ff00ff"];
-var sound = 0; // Sound = 0 = no sound from this window, 1 = sound
+var sound = 1; // Sound = 0 = no sound from this window, 1 = sound
 var songid = 0; // Current song being played
 
 var chorus = new Chorus({hide: true, append: true, namespace: "midi", care: false})
@@ -10,11 +9,11 @@ $(function() { // TODO: Clean up so all button functions are jQuery on clicks in
 	// Set up Jquery buttons
 
 	$("#playerdiv" ).draggable();
-	$("#playPauseStop").button( {
-		icon: "ui-icon-pause",
+	$("#playPauseStop").button({
+		icon: "ui-icon-play",
 		showLabel: false
 	});
-	$("#getNextSong").button( {
+	$("#getNextSong").button({
 		icon: "ui-icon-stop",
 		showLabel: false
 	});
@@ -24,10 +23,6 @@ $(function() { // TODO: Clean up so all button functions are jQuery on clicks in
 	});
 	$("#forward").button({
 		icon: "ui-icon-seek-next",
-		showLabel: false
-	});
-	$("#scheme").button({
-		icon: "ui-icon-arrowreturnthick-1-n",
 		showLabel: false
 	});
 	$("#info").button({
@@ -148,7 +143,7 @@ MIDI.loadPlugin({
 		// this sets up the MIDI.Player and gets things going...
 		player = MIDI.Player;
 		player.timeWarp = 1; // speed the song is played back
-		player.loadFile(song[0], player.start);
+		player.loadFile(song[0], player.pause);
 		$("#nowplaying").html(songNames[songid]);
 
 		MIDI.setVolume(0, 127 * sound);
@@ -231,12 +226,11 @@ var MIDIPlayerPercentage = function(player) {
 };
 
 /* Socket IO triggers */
-var socket = io();
 if (sound) {
-	socket.on("noteOn", function(d) {
+	chorus.socket.on("noteOn", function(d) {
 		noteOn(d.note, d.velocity);
 	});
-	socket.on("noteOff", function(d) {
+	chorus.socket.on("noteOff", function(d) {
 		noteOff(d.note);
 	});
 }
