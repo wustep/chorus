@@ -105,7 +105,7 @@ module.exports = {
 		if (typeof params === 'object' && 'note' in params) {
 			const adjNote = params.note - 21;
 			if (typeof data === 'object' && data !== null && 'activeNotes' in data) {
-				if (data.activeNotes[adjNote] === null || data.activeNotes[adjNote] === -1) { // Check that note is currently not already played
+				if (typeof data.activeNotes[adjNote] !== 'number' || data.activeNotes[adjNote] === -1) { // Check that note is currently not already played
 					data.activeNotes[adjNote] = process.uptime();
 					return callback(null, params)
 				}
@@ -122,7 +122,8 @@ module.exports = {
 		const adjNote = params.note - 21;
 		const key = adjNote % 12;
 		if (typeof data === 'object' && data !== null && 'activeNotes' in data && 'notes' in data) {
-			if (data.activeNotes[adjNote] !== null && data.activeNotes[adjNote] !== -1) { // Note is active
+			if (typeof data.activeNotes[adjNote] === 'number' && data.activeNotes[adjNote] !== -1) { // Note is active
+				console.log(data.activeNotes[adjNote]);
 				data.notes[key].duration += process.uptime() - data.activeNotes[adjNote];
 				data.activeNotes[adjNote] = -1;
 				return callback(null, params)
@@ -135,7 +136,7 @@ module.exports = {
 
 	reset: (data, params, callback) => {
 		data.notes = JSON.parse(JSON.stringify(notesDefault)); // Copy default
-		data.activeNotes = new Array(88);
+		data.activeNotes = new Array(88); // reset actives
 		callback(null, data);
 	}
 };
