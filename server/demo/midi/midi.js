@@ -2,6 +2,8 @@
   Custom commands for MIDI demo
 */
 
+// TODO: Simplify +/- 21? Such that it's only dealt with by MIDI library input and not anything else
+
 const hbs = require('hbs');
 const utils = require('./utils');
 const app = require('../../server.js'); // Get express instance
@@ -64,50 +66,71 @@ module.exports = {
 	_namespace: "midi",
 
 	_commands: {
-		noteOn: {
-			emit: [{
+		noteOn: [
+			{
+				type: "emit",
 				command: "noteOn",
-				sender: true,
+				sender: false,
+				room: true
+			},
+			{
+				type: "replace",
+				sender: false,
 				room: false
-			}]
-		},
-		noteOff: {
-			emit: [{
+			}
+		],
+		noteOff: [
+			{
+				type: "emit",
 				command: "noteOff",
 				sender: false,
 				room: true
-			}]
-		},
-		reset: {
-			replace: [{
+			},
+			{
+				type: "replace",
 				sender: true,
 				room: true
-			}]
-		}
+			}
+		],
+		reset: [
+			{
+				type: "replace",
+				sender: true,
+				room: true
+			}
+		]
 	},
 
 	noteOn: (data, params, callback) => { // TODO: Possibly validate input?
 		if (typeof params === 'object' && 'note' in params) {
 			const adjNote = params.note - 21;
-			if (typeof data === 'object' && 'activeNotes' in data && (data.activeNotes[adjNote] === undefined || data.activeNotes[adjNote] === -1)) { // Check that note is currently not already played
-				data.activeNotes[adjNote] = process.uptime();
+			if (typeof data === 'object' && data !== null && 'activeNotes' in data) {
+				if (data.activeNotes[adjNote] === null || data.activeNotes[adjNote] === -1) { // Check that note is currently not already played
+					data.activeNotes[adjNote] = process.uptime();
+					return callback(null, params)
+				}
+				// Otherwise, do nothing, as the note was already being played
+			} else {
+				return callback("Invalid data format");
 			}
 		} else {
-			return callback("Note On command missing note data");
+			return callback("Invalid data from sender");
 		}
-		return callback(null, params);
 	},
 
 	noteOff: (data, params, callback) => { // If C1 and C2 are being played, double count them.
 		const adjNote = params.note - 21;
 		const key = adjNote % 12;
-		if (typeof data === 'object' && 'activeNotes' in data && data.activeNotes[adjNote] !== undefined && data.activeNotes[adjNote] !== -1 && 'notes' in data) {
-			data.notes[key].duration += process.uptime() - data.activeNotes[adjNote];
-			data.activeNotes[adjNote] = -1;
+		if (typeof data === 'object' && data !== null && 'activeNotes' in data && 'notes' in data) {
+			if (data.activeNotes[adjNote] !== null && data.activeNotes[adjNote] !== -1) { // Note is active
+				data.notes[key].duration += process.uptime() - data.activeNotes[adjNote];
+				data.activeNotes[adjNote] = -1;
+				return callback(null, params)
+			}
+			// Otherwise, do nothing, as the note was not active
 		} else {
-			return callback("ActiveNotes missing from data");
+			return callback("Invalid data from sender");
 		}
-		return callback(null, params);
 	},
 
 	reset: (data, params, callback) => {

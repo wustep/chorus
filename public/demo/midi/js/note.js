@@ -4,14 +4,13 @@ var scheme = 1; // Scheme = 0 = notes disappear, 1 = notes stay faded
 var colorArray = ["#ff0000", "#ff8000", "#ffbf00", "#ffff00", "#bfff00", "#00ff00", "#00ffbf", "#0080ff", "#0000ff", "#4000ff", "#8000ff", "#ff00ff"];
 var sound = 0; // 0 = don't play sound from input, 1 = do
 
-var chorus = new Chorus({chromecast: true, hide: true, append: true})
+var chorus = new Chorus({hide: true, append: true, namespace: "midi", care: false})
 
 $(function() {
 	var thisNote = $("div.note").attr('id');
 	thisNote = thisNote.substring(5, thisNote.length);
 
 	/* Add click triggers to those notes */
-
 	$(".note").on("mousedown touchstart", function(e) {
 		e.preventDefault(); // For iPad, to prevent both triggering
 		noteOn(parseInt(thisNote)+21, 80, true);
@@ -33,7 +32,6 @@ $(function() {
 	});
 
 	/* Note on / off */
-
 	function noteOn(note, velocity=80, emit=false) {
 		var key = note - 21; // correct, since these keys seem to start higher
 		var d = document.getElementsByClassName("note")[0];

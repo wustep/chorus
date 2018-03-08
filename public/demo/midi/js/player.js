@@ -5,7 +5,7 @@ var colorArray = ["#ff0000", "#ff8000", "#ffbf00", "#ffff00", "#bfff00", "#00ff0
 var sound = 0; // Sound = 0 = no sound from this window, 1 = sound
 var songid = 0; // Current song being played
 
-var chorus = new Chorus({hide: true, append: true})
+var chorus = new Chorus({hide: true, append: true, namespace: "midi", care: false})
 $(function() { // TODO: Clean up so all button functions are jQuery on clicks instead
 	// Set up Jquery buttons
 
@@ -244,11 +244,11 @@ if (sound) {
 /* Note on / off */
 
 function noteOn(note, velocity=80, emit=false) {
-	socket.emit('command', { name: "noteOn", params: { note: note, velocity: velocity }});
+	chorus.command("noteOn", { note: note, velocity: velocity });
 }
 
 function noteOff(note, emit=false) {
-	socket.emit('command', { name: "noteOff", params: { note: note }});
+	chorus.command("noteOff", { note: note });
 }
 
 // Begin loading indication.

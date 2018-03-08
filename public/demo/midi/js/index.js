@@ -4,10 +4,6 @@ var scheme = 1; // Scheme = 0 = notes disappear, 1 = notes stay faded
 var colorArray = ["#ff0000", "#ff8000", "#ffbf00", "#ffff00", "#bfff00", "#00ff00", "#00ffbf", "#0080ff", "#0000ff", "#4000ff", "#8000ff", "#ff00ff"];
 var sound = 1; // 0 = don't play sound from input, 1 = do
 
-/* MIDI variables */
-
-var player = null;
-
 /* Generate color map based on array of colors */
 var colorMap = new Array(88);
 for (var i = 0; i < colorMap.length; i++) {
@@ -22,8 +18,6 @@ var defaultData = { activeNotes: new Array(88),
 									  notes: [{key: "A", duration: 0}, {key: "Bb", duration: 0}, {key: "B", duration: 0}, {key: "C", duration: 0}, {key: "Db", duration: 0}, {key: "D", duration: 0},
 														{key: "Eb", duration: 0}, {key: "E", duration: 0}, {key: "F", duration: 0}, {key: "Gb", duration: 0}, {key: "G", duration: 0}, {key: "Ab", duration: 0}]};
 var chorus = new Chorus({chromecast: true, hide: true, append: true, namespace: "midi", data: defaultData})
-// Note: Keyboard page does not keep an up-to-date copy of the room's data, since it does not have to for visualization purposes
-// It just sends the default values when casted. This means that the notes statistics will only log what has been played while casted.
 
 $(function() {
 	navigator.requestMIDIAccess().then(
@@ -111,15 +105,17 @@ $(function() {
 
 	/* Chorus socket command striggers */
 	chorus.socket.on("noteOn", function(d) {
+		console.log(d);
 		noteOn(d.note, d.velocity);
 	});
 	chorus.socket.on("noteOff", function(d) {
+		console.log(d);
 		noteOff(d.note);
 	});
 
 	/* Chorus render: populate keyboard with colored keys if scheme is lit */
 	chorus.render = function(d) {
-		if (typeof d === "object" && "activeNotes" in d && "notes" in d) {
+		if (typeof d === "object" && d !== null && "activeNotes" in d && "notes" in d) {
 			for (let i = 0; i < d.activeNotes.length; i++) {
 				if (d.activeNotes[i] !== null) {
 					noteOff(i + 21, false);
