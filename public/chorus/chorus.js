@@ -69,9 +69,13 @@ if (typeof jQuery == 'undefined') {
 		}
 		chorusInitialized = true;
 
+		if (!'data' in params) {
+			console.log("[Chorus] No default data parameter set for chorus - defaulting to empty object: {} - may cause issues down the road.")
+		}
+
 		// Chrous object variables
 		this.clone = ('clone' in params) ? params.clone : false; // Update based on value instead of reference if true
-		this.data = ('data' in params) ? (this.clone ? JSON.parse(JSON.stringify(params.data)) : params.data) : undefined; // Default data to initialization parameter
+		this.data = ('data' in params) ? (this.clone ? JSON.parse(JSON.stringify(params.data)) : params.data) : {}; // Default data to initialization parameter
 		this.socket = io(('server' in params) ? params.server : ''); // Create new socket given provided URL.
 		this.display = -1; // Default display to none, 0 = detached from main, 1 = main
 		this.room = "ERR"; // Default room to "ERR"
