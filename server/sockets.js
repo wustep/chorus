@@ -136,57 +136,62 @@ module.exports = {
 					if (customsLoaded) { // Customs were loaded
 						if (roomid != null) { // Is in room
 							if ("namespace" in d && d.namespace in commands) {
+								const logRoom = roomid + "] [" + d.namespace; // Prints roomid and namespace in logs
 								const custom = commands[d.namespace]; // Get contents of custom script
 								if ("command" in d && d.command in commands[d.namespace]) { // Valid command
 									const props = custom[d.command]; // Get specific command function
-									if (typeof d.params === "undefined") {
+										if (typeof d.params === "undefined") {
 										 d.params = []; // Prevents undefined error.
 									}
 									commands[d.namespace][d.command](rooms.get(roomid), d.params, function (err, result) {
 										if (err) { // if command callsback an error
-											log(roomid, socket.conn.id, "Error: [Custom] " + err, true);
+											log(logRoom, socket.conn.id, `Error (${d.command}): ${err}`, true);
 											return;
 										} else {
 											var add = ""; // Additional console info
 											if ("_commands" in custom && d.command in custom["_commands"]) { // Valid command in commands list
-												let config = custom["_commands"][d.command];
-												// TODO: Right now, this format is limited as any consequence of the custom commands (emit / replace) must use the result of the command
-												if ("replace" in config) { // Replace data if specified
-													rooms.set(roomid, result);
-													let informed = "";
-													if (config.replace.sender) {
-														socket.emit('get data', rooms.get(roomid));
-														informed += "Sender";
-													}
-													if (config.replace.room) {
-														socket.to(roomid).broadcast.emit('get data');
-														informed += `{(informed) ? "+ " : ""}Room`;
-													}
-													if (!informed) {
-														informed = "Nobody";
-													}
-													add += ` Replaced data in room, informed: (${informed}).`
-												}
-												if ("emit" in config) {
-													for (emit of config["emit"]) {
-														if (emit.sender) {
-															socket.emit(emit.command, result);
-															add += " Sent command (" + emit.command + ") to client.";
+												let commandActions = custom["_commands"][d.command];
+												for (action of commandActions) {
+													// TODO: Right now, this format is limited as any consequence of emits must use the result of the single command
+													if ("type" in action) {
+														if (action.type === "replace") { // Send "get data" request to clients
+															// TODO: Is this ambiguous in that data replacements must be done in the other file? And this only causes the "get data" msg?
+															// If so, improve upon that, perhaps using result and replacing result.
+															let informed = "";
+															if ('sender' in action && action.sender) {
+																socket.emit('get data', rooms.get(roomid));
+																informed += "Sender";
+															}
+															if ('room' in action && action.room) {
+																socket.to(roomid).broadcast.emit('get data', rooms.get(roomid));
+																informed += `${(informed) ? "+" : ""}Room`;
+															}
+															if (!informed) {
+																informed = "Nobody";
+															}
+															add += ` Replaced data in room, informed: (${informed}).`
+														} else if (action.type === "emit") {
+															if (action.sender) {
+																socket.emit(action.command, result);
+																add += ` Sent command (${action.command}) to client.`;
+															}
+															if (action.room) {
+																socket.to(roomid).broadcast.emit(action.command, result);
+																add += ` Broadcasted command (${action.command}) to room.`;
+															}
+														} else {
+															log (logRoom, socket.conn.id, `Error: Client command (${d.command}) does not have a valid action sequence. See docs for more info.`, true)
 														}
-														if (emit.room) {
-															socket.to(roomid).broadcast.emit(emit.command, result);
-															add += " Broadcasted command (" + emit.command + ") to room.";
-														}
 													}
 												}
-												log(roomid, socket.conn.id, `Client command (${d.command}).${(add) ? add : ''}`);
+												log(logRoom, socket.conn.id, `Client command (${d.command}).${(add) ? add : ''}`);
 											} else {
-												log(roomid, socket.conn.id, `Error: Client attempted command (${d.command}) not defined in "_commands" of custom file`, true);
+												log(logRoom, socket.conn.id, `Error: Client attempted command (${d.command}) not defined in "_commands" of custom file. See docs for more info`, true);
 											}
 										}
 									}); // Likely needs more security/validation for live
 								} else {
-									log(roomid, socket.conn.id, `Error: Client attempted undefined command (${('command' in d) ? d.command : null})`, true);
+									log(logRoom, socket.conn.id, `Error: Client attempted undefined command (${('command' in d) ? d.command : null})`, true);
 								}
 							} else {
 								log(roomid, socket.conn.id, `Error: Client attempted command in undefined namespace (${'namespace' in d ? d.namespace: null})`, true);
