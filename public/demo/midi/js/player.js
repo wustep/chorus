@@ -1,13 +1,19 @@
-/* Parameters */
-
+/* player.js
+  Player module
+*/
 var colorArray = ["#ff0000", "#ff8000", "#ffbf00", "#ffff00", "#bfff00", "#00ff00", "#00ffbf", "#0080ff", "#0000ff", "#4000ff", "#8000ff", "#ff00ff"];
 var sound = 1; // Sound = 0 = no sound from this window, 1 = sound
 var songid = 0; // Current song being played
 
+/* Chorus settings
+  - cares = false => don't re-render on new data, only care about specific events
+	- Since player.js only sends data and doesn't care about incoming data, cares is false
+*/
 var chorus = new Chorus({hide: true, append: true, namespace: "midi", care: false})
-$(function() { // TODO: Clean up so all button functions are jQuery on clicks instead
-	// Set up Jquery buttons
+$(function() {
 
+	/* Set up Jquery buttons */
+	// TODO: Clean up so all button functions are jQuery on clicks instead
 	$("#playerdiv" ).draggable();
 	$("#playPauseStop").button({
 		icon: "ui-icon-play",
@@ -58,7 +64,6 @@ $(function() { // TODO: Clean up so all button functions are jQuery on clicks in
 		width: 420
 	});
 
-
 	$("#upload").on("click", function() {
 		if ($("#upload-dialog").dialog("isOpen")) { // Close upload / info if open
 			$("#upload-dialog").dialog("close");
@@ -86,7 +91,10 @@ $(function() { // TODO: Clean up so all button functions are jQuery on clicks in
 	});
 });
 
-function getBase64(file, callback) { // getBase64 from https://stackoverflow.com/a/36281449
+/* getBase64 - convert file to Base64
+   from https://stackoverflow.com/a/36281449
+*/
+function getBase64(file, callback) {
 	var reader = new FileReader();
 	reader.readAsDataURL(file);
    	reader.onload = function () {
@@ -135,19 +143,19 @@ var clearColors = function() {
 	});
 };
 
+/* Load MIDI files and set up instruments
+  - https://galactic.ink/midi-js/
+*/
 MIDI.loader = new sketch.ui.Timer;
 MIDI.loadPlugin({
 	soundfontUrl: "./midi/",
-	instrument: "acoustic_grand_piano", // or the instrument code 1 (aka the default)
+	instrument: "acoustic_grand_piano",
 	onsuccess: function() {
-		// this sets up the MIDI.Player and gets things going...
 		player = MIDI.Player;
 		player.timeWarp = 1; // speed the song is played back
 		player.loadFile(song[0], player.pause);
 		$("#nowplaying").html(songNames[songid]);
-
 		MIDI.setVolume(0, 127 * sound);
-
 		player.addListener(function(d) {
 			if (d) {
 				if (d.message === 144) {
@@ -158,7 +166,6 @@ MIDI.loadPlugin({
 			}
 		});
 		MIDIPlayerPercentage(player);
-
 		if (sound) {
 			MIDI.setEffects([{
 				type: "Chorus",
@@ -187,7 +194,6 @@ var MIDIPlayerPercentage = function(player) {
 	var time2 = document.getElementById("time2");
 	var capsule = document.getElementById("capsule");
 	var timeCursor = document.getElementById("cursor");
-	//
 	eventjs.add(capsule, "drag", function(event, self) {
 		eventjs.cancel(event);
 		player.currentTime = (self.x) / 420 * player.endTime;
@@ -235,8 +241,7 @@ if (sound) {
 	});
 }
 
-/* Note on / off */
-
+/* Note on / off events */
 function noteOn(note, velocity=80, emit=false) {
 	chorus.command("noteOn", { note: note, velocity: velocity });
 }

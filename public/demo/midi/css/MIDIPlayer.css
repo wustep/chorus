@@ -1,4 +1,3 @@
-/* Body and colors */
 body {
 	font-family: Arial,Helvetica,sans-serif;
 	font-size: 1.2em;
@@ -9,31 +8,30 @@ body {
     background-size: cover;
 }
 
+/* Notes container */
 #colors {
-	position: absolute; 
-	top: 0; 
-	left: 0; 
-	overflow: hidden; 
-	display: flex; 
+	position: absolute;
+	top: 0;
+	left: 0;
+	overflow: hidden;
+	display: flex;
 	flex-wrap: wrap;
 }
 
+/* Individual note container */
 #colors div {
-    -webkit-transition-property: background, color;
-    -webkit-transition-duration: .25s;
-    font-family: arial;
-    font-size: 14px;
-    /* line-height: 9px; */
-    width: 8vw;
-    height: 14.3vh;
-    /* background: #000; */
-    /* background-image: -webkit-gradient(linear,left top,left bottom,from(rgba(66,66,66,0.75)),to(rgba(0,0,0,1))); */
-    /* border-bottom: 1px solid rgba(5,5,5,0.7); */
-    box-sizing: border-box;
-    text-align: center;
-    display: inline-block;
-    line-height: 14.3vh;
+  -webkit-transition-property: background, color;
+  -webkit-transition-duration: .25s;
+  font-family: arial;
+  font-size: 14px;
+  width: 8vw;
+  height: 14.3vh;
+  box-sizing: border-box;
+  text-align: center;
+  display: inline-block;
+  line-height: 14.3vh;
 	opacity: .75;
+
 	/* Make unhighlightable */
 	-moz-user-select: -moz-none;
 	-khtml-user-select: none;
@@ -49,11 +47,11 @@ body {
 div#playerdiv {
 	opacity: 0.7;
 	cursor: move;
-	margin: 20px; 
-	background: rgba(255,255,255,0.5); 
-	border-radius: 11px; 
-	position: relative; 
-	z-index: 10; 
+	margin: 20px;
+	background: rgba(255,255,255,0.5);
+	border-radius: 11px;
+	position: relative;
+	z-index: 10;
 	text-align: center;
 }
 div.player {
@@ -72,20 +70,20 @@ div.player {
 	color: rgba(255, 255, 255, 0.8);
 	text-shadow: 1px 1px 2px #000;
 	-moz-text-shadow: 1px 1px 2px #000;
-	height: 33px; 
-	margin: 0 auto; 
+	height: 33px;
+	margin: 0 auto;
 	float: left;
 }
 
 div.player button {
-    background-color: whitesmoke;
-    height: 23px;
-    width: 23px;
-    border-radius: 11px;
+  background-color: whitesmoke;
+  height: 23px;
+  width: 23px;
+  border-radius: 11px;
 }
 
 [draggable=true] {
-    cursor: move;
+  cursor: move;
 }
 
 /* Single note */

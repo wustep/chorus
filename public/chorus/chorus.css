@@ -2,7 +2,7 @@
 	chrous client-sided css for nav
 */
 
-#chorus-nav { /* Based on Bootstrap */
+#chorus-nav { /* Nav buttons based  on Bootstrap's */
 	bottom: 0;
 	left: 0;
 	position: fixed;
@@ -15,30 +15,30 @@
 
 #chorus-nav button {
 	display: inline-block;
-    font-weight: 400;
-    line-height: 1.25;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-    background-image: none;
-    background-color: transparent;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    border: 1px solid transparent;
-    border-radius: .25rem;
-    padding: .5rem 1rem;
-    font-size: 1rem;
-    -webkit-transition: all .2s ease-in-out;
-    -o-transition: all .2s ease-in-out;
-    transition: all .2s ease-in-out;
+  font-weight: 400;
+  line-height: 1.25;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  background-image: none;
+  background-color: transparent;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  padding: .5rem 1rem;
+  font-size: 1rem;
+  -webkit-transition: all .2s ease-in-out;
+  -o-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
 	margin: 0.25rem;
 }
 
 #chorus-nav button {
 	color: #fff;
-    border-color: rgba(0,0,0,.20);
+  border-color: rgba(0,0,0,.20);
 	background-color: rgba(0,0,0,.20);
 }
 
@@ -49,12 +49,12 @@
 }
 
 #chorus-nav button:disabled {
-    user-select : none;
-    -moz-user-select : none;
-    -webkit-user-select : none;
-    color: white !important;
+	user-select : none;
+	-moz-user-select : none;
+	-webkit-user-select : none;
+	color: white !important;
 	background-color: rgba(255,0,0,0.5) !important;
-    cursor: default !important;
+	cursor: default !important;
 }
 
 #chorus-nav #chorus-display[value=main] {
@@ -70,7 +70,7 @@
 
 #chorus-nav #chorus-display[value=aux] {
 	color: #fff;
-    border-color: #c30;
+  border-color: #c30;
 	background-color: #c30;
 }
 

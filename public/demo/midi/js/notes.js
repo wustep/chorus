@@ -1,12 +1,13 @@
-var colorElements = [];
-
+/* notes.js
+  Notes graph frequency module
+*/
+var colorArray = ["#ff0000", "#ff8000", "#ffbf00", "#ffff00", "#bfff00", "#00ff00", "#00ffbf", "#0080ff", "#0000ff", "#4000ff", "#8000ff", "#ff00ff"];
 var defaultData = { activeNotes: new Array(88),
 									  notes: [{key: "A", duration: 0}, {key: "Bb", duration: 0}, {key: "B", duration: 0}, {key: "C", duration: 0}, {key: "Db", duration: 0}, {key: "D", duration: 0},
 														{key: "Eb", duration: 0}, {key: "E", duration: 0}, {key: "F", duration: 0}, {key: "Gb", duration: 0}, {key: "G", duration: 0}, {key: "Ab", duration: 0}]};
-var chorus = new Chorus({chromecast: true, hide: true, append: true, namespace: "midi", data: defaultData})
-$(function() {
-	var colorArray = ["#ff0000", "#ff8000", "#ffbf00", "#ffff00", "#bfff00", "#00ff00", "#00ffbf", "#0080ff", "#0000ff", "#4000ff", "#8000ff", "#ff00ff"];
+var chorus = new Chorus({chromecast: true, hide: true, append: true, namespace: "midi", data: defaultData});
 
+$(function() {
 	/* D3 bar chart revised from https://bl.ocks.org/mbostock/3885304 */
 	var svg = d3.select("svg"),
 		margin = {top: 20, right: 20, bottom: 30, left: 40},

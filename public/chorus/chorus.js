@@ -400,9 +400,9 @@ if (typeof jQuery == 'undefined') {
 
 			// Follow success/failure
 			chorus.socket.on("follow success", function(data) {
-				if (chorus.cares) {
-					chorus.data = data; // Replace data
-					chorus.render(data, true); // Re-render display from data
+				if (chorus.cares) { // Re-render data if client cares
+					chorus.data = data;
+					chorus.render(data, true);
 				}
 				chorus.display = 0; // Set display to main
 				chorus.nav.html(navMain); // Change navbar to main
@@ -438,5 +438,4 @@ if (typeof jQuery == 'undefined') {
 		});
 		console.log("[Chorus] Initialized" + (('server' in params) ? ` at: ${params.server}` : ""));
 	};
-
 }

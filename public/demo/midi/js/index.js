@@ -1,3 +1,7 @@
+/* index.js
+  Keyboard notes module
+*/
+
 /* Generate colors of keyboard  */
 var colorArray = ["#ff0000", "#ff8000", "#ffbf00", "#ffff00", "#bfff00", "#00ff00", "#00ffbf", "#0080ff", "#0000ff", "#4000ff", "#8000ff", "#ff00ff"];
 var colorMap = new Array(88);
@@ -5,7 +9,10 @@ for (var i = 0; i < colorMap.length; i++) {
 	colorMap[i] = colorArray[i % 12];
 }
 
-/* Request MIDI access - https://webaudio.github.io/web-midi-api/ */
+/* Request MIDI access
+  - https://webaudio.github.io/web-midi-api/
+	- https://galactic.ink/midi-js/
+*/
 var midi = null;
 var hasInput = false;
 var colorElements = [];
