@@ -1,6 +1,5 @@
-/* D3 bar chart revised from https://bl.ocks.org/mbostock/3885304 */
-
 var colorElements = [];
+
 var defaultData = { activeNotes: new Array(88),
 									  notes: [{key: "A", duration: 0}, {key: "Bb", duration: 0}, {key: "B", duration: 0}, {key: "C", duration: 0}, {key: "Db", duration: 0}, {key: "D", duration: 0},
 														{key: "Eb", duration: 0}, {key: "E", duration: 0}, {key: "F", duration: 0}, {key: "Gb", duration: 0}, {key: "G", duration: 0}, {key: "Ab", duration: 0}]};
@@ -8,6 +7,7 @@ var chorus = new Chorus({chromecast: true, hide: true, append: true, namespace: 
 $(function() {
 	var colorArray = ["#ff0000", "#ff8000", "#ffbf00", "#ffff00", "#bfff00", "#00ff00", "#00ffbf", "#0080ff", "#0000ff", "#4000ff", "#8000ff", "#ff00ff"];
 
+	/* D3 bar chart revised from https://bl.ocks.org/mbostock/3885304 */
 	var svg = d3.select("svg"),
 		margin = {top: 20, right: 20, bottom: 30, left: 40},
 		width = +svg.attr("width") - margin.left - margin.right,
@@ -21,8 +21,11 @@ $(function() {
 
 	var data = [];
 	var generated = false;
+
+	/* Chorus render:
+	 	 generate chart from chorus-supplied data
+	*/
 	chorus.render = function(_data) {
-		console.log(_data);
 		data = _data.notes;
 		var total = 0;
 		for (var i = 0; i < data.length; i++) {
@@ -67,6 +70,10 @@ $(function() {
 			.attr("height", function(d) { return height - y((total > 0) ? d.duration / total : 0); });
 		}
 	};
+
+	/* reset btn:
+		 send custom command 'reset' to reset note frequencies
+	*/
 	$("#reset").on('click', function() {
 		chorus.command("reset");
 	});

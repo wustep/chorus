@@ -1,10 +1,5 @@
-/* Parameters */
-
-var scheme = 1; // Scheme = 0 = notes disappear, 1 = notes stay faded
+/* Generate colors of keyboard  */
 var colorArray = ["#ff0000", "#ff8000", "#ffbf00", "#ffff00", "#bfff00", "#00ff00", "#00ffbf", "#0080ff", "#0000ff", "#4000ff", "#8000ff", "#ff00ff"];
-var sound = 1; // 0 = don't play sound from input, 1 = do
-
-/* Generate color map based on array of colors */
 var colorMap = new Array(88);
 for (var i = 0; i < colorMap.length; i++) {
 	colorMap[i] = colorArray[i % 12];
@@ -17,9 +12,18 @@ var colorElements = [];
 var defaultData = { activeNotes: new Array(88),
 									  notes: [{key: "A", duration: 0}, {key: "Bb", duration: 0}, {key: "B", duration: 0}, {key: "C", duration: 0}, {key: "Db", duration: 0}, {key: "D", duration: 0},
 														{key: "Eb", duration: 0}, {key: "E", duration: 0}, {key: "F", duration: 0}, {key: "Gb", duration: 0}, {key: "G", duration: 0}, {key: "Ab", duration: 0}]};
-var chorus = new Chorus({chromecast: true, hide: true, append: true, namespace: "midi", data: defaultData})
+
+/* Chorus settings:
+	- hide on successfully creating / joining room
+	- allow for chromecast casting
+	- append automatically to windo
+	- use custom "midi" commands
+	- use default data of above variable
+*/
+var chorus = new Chorus({hide: true, chromecast: true, append: true, namespace: "midi", data: defaultData})
 
 $(function() {
+	/* Request MIDI input access and report results */
 	navigator.requestMIDIAccess().then(
 		function(midiAccess) {
 			midi = midiAccess;  // store in the global (in real usage, would probably keep in an object instance)
@@ -53,9 +57,7 @@ $(function() {
 		}
 	}
 
-
-	/* Generate array of note divs to refer to */
-
+	/* Generate array of note divs */
 	for (var n = 0; n < 88; n++) {
 		var d = document.createElement("div");
 		d.innerHTML = MIDI.noteToKey[n + 21];
@@ -64,44 +66,40 @@ $(function() {
 	}
 
 	/* Add click triggers to those notes */
-
 	$("#colors div").on("mousedown touchstart", function(e) {
-		e.preventDefault(); // For iPad, to prevent both triggering
+		e.preventDefault(); // For iPad, to prevent both these events triggering
 		var note = $(this).html();
-		note = MIDI.keyToNote[note];
-		noteOn(note, 80, true);
+		noteOn(MIDI.keyToNote[note], 80, true);
 	}).on("mouseup touchend", function(e) {
 		e.preventDefault();
 		var note = $(this).html();
-		note = MIDI.keyToNote[note];
-		noteOff(note, true);
+		noteOff(MIDI.keyToNote[note], true);
 	});
 
-	if (sound) {
-		MIDI.loadPlugin({
-			soundfontUrl: "./midi/",
-			instrument: "acoustic_grand_piano", // or the instrument code 1 (aka the default)
-			onsuccess: function() {
-				MIDI.setEffects([{
-					type: "Chorus",
-					rate: 1.5,
-					feedback: 0.2,
-					delay: 0.0045,
-					bypass: 0
-				},
-				{
-					type: "Convolver",
-					highCut: 18000, // 20 to 22050
-					lowCut: 20, // 20 to 22050
-					dryLevel: 1, // 0 to 1+
-					wetLevel: 1, // 0 to 1+
-					level: 1, // 0 to 1+, adjusts total output of both wet and dry
-					impulse: "./midi/impulse_rev.wav", // the path to your impulse response
-					bypass: 0
-				}]);
-			}
-		});
-	}
+	/* Load instrument and effects used to play notes */
+	MIDI.loadPlugin({
+		soundfontUrl: "./midi/",
+		instrument: "acoustic_grand_piano", // or the instrument code 1 (aka the default)
+		onsuccess: function() {
+			MIDI.setEffects([{
+				type: "Chorus",
+				rate: 1.5,
+				feedback: 0.2,
+				delay: 0.0045,
+				bypass: 0
+			},
+			{
+				type: "Convolver",
+				highCut: 18000, // 20 to 22050
+				lowCut: 20, // 20 to 22050
+				dryLevel: 1, // 0 to 1+
+				wetLevel: 1, // 0 to 1+
+				level: 1, // 0 to 1+, adjusts total output of both wet and dry
+				impulse: "./midi/impulse_rev.wav", // the path to your impulse response
+				bypass: 0
+			}]);
+		}
+	});
 
 	/* Chorus socket command striggers */
 	chorus.socket.on("noteOn", function(d) {
@@ -113,7 +111,7 @@ $(function() {
 		noteOff(d.note);
 	});
 
-	/* Chorus render: populate keyboard with colored keys if scheme is lit */
+	/* Chorus render: populate keyboard with colored keys */
 	chorus.render = function(d) {
 		if (typeof d === "object" && d !== null && "activeNotes" in d && "notes" in d) {
 			for (let i = 0; i < d.activeNotes.length; i++) {
@@ -124,19 +122,17 @@ $(function() {
 		}
 	}
 
-	/* Note on / off */
-
+	/* Note on / off event functions */
 	function noteOn(note, velocity=80, emit=false) {
 		var key = note - 21; // correct, since these keys seem to start higher
 		var d = colorElements[key];
 		if (d) {
 			d.style.background = colorMap[key];
+			d.style.opacity = 1.0;
 			d.classList.add("pressed");
-			if (scheme === 1)
-				d.style.opacity = 1.0;
 			if (sound)
 				MIDI.noteOn(0, note, velocity, 0);
-			if (emit)
+			if (emit) // Only emit on outgoing, not incoming noteOn events
 				chorus.command("noteOn", { note: note, velocity: velocity });
 		}
 	}
@@ -145,12 +141,8 @@ $(function() {
 		var key = note - 21;
 		var d = colorElements[key];
 		if (d) {
-			if (scheme === 0)
-				d.style.background = "";
-			else // This is here, since on render, they won't have a color
-				d.style.background = colorMap[key];
-			if (scheme === 1)
-				d.style.opacity = 0.6;
+			d.style.background = colorMap[key]; // This is here, since on render, they won't have a color
+			d.style.opacity = 0.5;
 			d.classList.remove("pressed");
 			if (sound)
 				MIDI.noteOff(0, note, 0);
