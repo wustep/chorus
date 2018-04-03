@@ -3,7 +3,8 @@
 */
 
 var colorArray = ["#ff0000", "#ff8000", "#ffbf00", "#ffff00", "#bfff00", "#00ff00", "#00ffbf", "#0080ff", "#0000ff", "#4000ff", "#8000ff", "#ff00ff"];
-var sound = 1; // 0 = don't play sound from input, 1 = do
+//var sound = 0; // 0 = don't play sound from input, 1 = do
+// TODO: Return sound functionality by adding MIDI here
 
 /* Chorus settings
   - cares = true => don't re-render on new data, only care about specific events
@@ -42,8 +43,8 @@ $(function() {
 		d.style.background = colorArray[key % 12];
 		d.style.opacity = 1.0;
 		d.classList.add("pressed");
-		if (sound)
-			MIDI.noteOn(0, note, velocity, 0);
+		//if (sound)
+		//	MIDI.noteOn(0, note, velocity, 0);
 		if (emit)
 			chorus.command("noteOn", { note: parseInt(note), velocity: velocity });
 	}
@@ -54,8 +55,8 @@ $(function() {
 		d.style.background = colorArray[key % 12];
 		d.style.opacity = 0.5;
 		d.classList.remove("pressed");
-		if (sound)
-			MIDI.noteOff(0, note, 0);
+		//if (sound)
+		//	MIDI.noteOff(0, note, 0);
 		if (emit)
 			chorus.command('noteOff', { note: parseInt(note) });
 	}
