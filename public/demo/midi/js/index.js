@@ -137,8 +137,7 @@ $(function() {
 			d.style.background = colorMap[key];
 			d.style.opacity = 1.0;
 			d.classList.add("pressed");
-			if (sound)
-				MIDI.noteOn(0, note, velocity, 0);
+			MIDI.noteOn(0, note, velocity, 0);
 			if (emit) // Only emit on outgoing, not incoming noteOn events
 				chorus.command("noteOn", { note: note, velocity: velocity });
 		}
@@ -151,8 +150,7 @@ $(function() {
 			d.style.background = colorMap[key]; // This is here, since on render, they won't have a color
 			d.style.opacity = 0.5;
 			d.classList.remove("pressed");
-			if (sound)
-				MIDI.noteOff(0, note, 0);
+			MIDI.noteOff(0, note, 0);
 			if (emit)
 				chorus.command("noteOff", { note: note });
 		}
