@@ -90,29 +90,29 @@
         drawnItems.addLayer(layer);
 		_data[3].push(layer.id); // Add to recently added list
 		updateData();
-		if ($("#chorus-display").attr("value") === "main") { 
+		if ($("#chorus-display").attr("value") === "main") {
 			socket.emit("command", {name: "pushMain", params: { data: _data } });
 		}
     });
-	
+
     map.on('draw:edited', function (e) {
 		var layers = e.layers["_layers"];
 		for (item in layers) {
-			_data[4].push([layers[item].id, Date.now()]);			
+			_data[4].push([layers[item].id, Date.now()]);
 		}
 		updateData();
-		if ($("#chorus-display").attr("value") === "main") { 
+		if ($("#chorus-display").attr("value") === "main") {
 			socket.emit("command", {name: "pushMain", params: { data: _data } });
 		}
     });
-	
+
 	map.on('draw:deleted', function (e) {
 		var layers = e.layers["_layers"];
 		for (item in layers) {
-			_data[5].push([layers[item].id, Date.now()]);			
+			_data[5].push([layers[item].id, Date.now()]);
 		}
 		updateData();
-		if ($("#chorus-display").attr("value") === "main") { 
+		if ($("#chorus-display").attr("value") === "main") {
 			socket.emit("command", {name: "pushMain", params: { data: _data } });
 		}
 	});
@@ -127,28 +127,28 @@
 		gen(data, true);
 	});
 	socket.on("generate data", function() { // Generate default data
-		socket.emit("generate data", _data); 
+		socket.emit("generate data", _data);
 	});
 	socket.on("render all", function (data) {
 		gen(data);
 	});
 	socket.on("render main", function (data) {
-		if (!_chorusConfig.display) { 
+		if (!_chorusConfig.display) {
 			gen(data);
 			_data = data;
 		}
 	});
-	
+
 	map.on('movestart', function(e) {
 		$("#chorus-push").prop("disabled",true); // Disable push button while moving
 	});
-	
+
 	map.on('moveend', function(e) {
 		if (generating) {
 			generating = false;
 		} else {
 			updateData();
-			if ($("#chorus-display").attr("value") === "main") { 
+			if ($("#chorus-display").attr("value") === "main") {
 				socket.emit("command", {name: "pushMain", params: { data: _data } });
 			}
 		}
@@ -165,7 +165,7 @@
 				_data[5] = [];
 			}
 		});
-		
+
 		$("#chorus-push").on("click", function() {
 			if ($(this).attr("value") === "main") { // Pushing Aux -> Main
 				socket.emit("command", {name: "pushMain", params: { data: _data } });
@@ -174,11 +174,11 @@
 				// Kill recently added, edited, and deleted lists
 				_data[3] = [];
 				_data[4] = [];
-				_data[5] = []; 
+				_data[5] = [];
 			}
 		});
 	});
-	
+
 	function gen(data, fresh=false) { // Draw map objects and set view to stored data
 		if (data && data.length == 6) { // TODO: Better validation?
 			generating = true;
@@ -202,7 +202,7 @@
 			}
 		}
 	}
-	
+
 	function updated(newData, oldData, id) { // Check if id is added (1), edited (2), or deleted (3), or none (0). TODO: optimization?
 		// Check deleted first, as that is priority, then edited, then added.
 		var ans = 0;
@@ -232,13 +232,13 @@
 		}
 		return ans;
 	}
-	
+
 	function updateData() { // Store center, zoom, and objects
 		_data[0] = map.getBounds().getCenter();
 		_data[1] = map.getZoom();
 		_data[2] = toGeoJSON(drawnItems);
 	}
-	
+
 	function toGeoJSON(items) { // Use toGeoJSON but preserve IDs and radii
 		var result = items.toGeoJSON();
 		var i = 0;
@@ -251,7 +251,7 @@
 		}
 		return result;
 	}
-	
+
 	function geoJSON2(i) { // Use GeoJSON but convert circles https://github.com/Leaflet/Leaflet.draw/issues/390
 		return L.geoJSON(i, {
 			pointToLayer: function(feature, latlng) {
