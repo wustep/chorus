@@ -1,36 +1,55 @@
-# chorus
-multiple device data viz coordination with socket.io and express
+# Chorus
+**Chorus** is a framework for rapidly creating multi-device JavaScript-based data visualizations.
 
-# benefits
-- Server-sided or client-sided data generation and handling
-- Sync data so clients can receive real-time updates to dataset or push to main display
-- Separating d3 components into multiple windows or devices allow for flexibility of display
+**Goal**: Minimize the time taken to turn any regular browser-based data viz to be a collaborative experience
 
-# demos
+# Features
+- Multi-device data coordination for any JavaScript-based data visualization or tool, easily integrated into code
+- Server facilitating numerous clients and channels, separating data stores securely with low latency
+- Menu to allow users to easily create or follow data rooms and detach if desired
+- Built-in Chromecast integration, allowing any monitor or projector to become an synced external display
+- Custom backend to add additional socket events or server-sided data processing
+
+# Demos
 **TBDBITL**: Pie chart + dot chart + arrow buttons coordinating OSU Marching Band row instrumentation breakdown
-
 **MIDI**: Socket.io piano keyboard + vizualization of notes played
-
 **Crossfilter**: Flight data
-
 **Leaflet**: Leaflet.js map and draw tools
 
-- Note: only MIDI / Leaflet so far is available in main chorus. Use /v0/ to run others. Rest are being ported!
+# Usage
+**Installation**
+1. Clone Git repository.
+2. Install NPM if needed, then ```npm install``` in root
+3. Create ```.env``` file in root with desired specifications (see below).
+4. Run your own web server or serve your viz files statically through the ```.env``` file settings
+5. Delete /demo/ folders if desired
 
-# usage
-- See public/chorus/test.html for an example usage and rules
+**Code**
+1. Include ```socket.io``` and optionally ```cast_sender.js``` locally or externally
+2. Include ```chorus.js``` and ```chorus.css``` in the ```/public/chorus/``` folder.
+```
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.2/socket.io.js"></script>
+<script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
+<script src="chorus.js"></script>
+```
+3. Create new Chorus object (e.g. "chorus")
+4. Implement chorus.render(data, fresh) that renders data accordingly
+5. Add chorus.update(data, clone) whenever data is updated
+
+See public/chorus/test.html for an full documentation.
 
 # ENV
 ```
-# port: Express server port
+# port: Express server port (OPTIONAL, DEFAULT: 3000)
 port=3000
 
-# client: Serve client files via express
+# client: Serve client files via express (OPTIONAL)
 client=demo/midi/public
 
-# customs: Serve custom server files
+# customs: Serve custom server files (OPTIONAL)
 customs=demo/midi/midi.js
 
-# debug: Serve all events if true, otherwise serve only errors
+# debug: Serve all events if true, otherwise serve only errors (OPTIONAL, DEFAULT: false)
 debug=true
 ```
