@@ -12,8 +12,11 @@
 
 # Demos
 **TBDBITL**: Pie chart + dot chart + arrow buttons coordinating OSU Marching Band row instrumentation breakdown
+
 **MIDI**: Socket.io piano keyboard + vizualization of notes played
+
 **Crossfilter**: Flight data
+
 **Leaflet**: Leaflet.js map and draw tools
 
 # Usage
