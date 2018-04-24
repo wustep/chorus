@@ -3,6 +3,8 @@
 
 **Goal**: Minimize the time taken to turn any regular browser-based data viz to be a collaborative experience
 
+[See the poster here!](https://github.com/wustep/chorus/blob/chorus/poster.pdf) (Presented at the 2018 Denman Undergraduate Research Forum)
+
 # Features
 - Multi-device data coordination for any JavaScript-based data visualization or tool, easily integrated into code
 - Server facilitating numerous clients and channels, separating data stores securely with low latency
@@ -45,7 +47,7 @@ To implement on your own JS-based tool:
 4. Implement chorus.render(data, fresh) that renders data accordingly
 5. Add chorus.update(data, clone) whenever data is updated
 
-See public/chorus/test.html for an full documentation.
+See ```public/chorus/test.html``` for an full documentation.
 
 # ENV
 ```
