@@ -22,11 +22,11 @@
 
 To install Chorus's server and associated demos:
 
-1. Clone Git repository.
+1. Clone Git repository
 2. Install NPM if needed, then ```npm install``` in root
 3. Create ```.env``` file in root with desired specifications (see below).
 4. Run your own web server or serve your tool's files statically through the ```.env``` file settings
-5. Delete /demo/ folders if desired
+5. Delete ```/demo/``` folders if desired
 6. Run ```npm start```
 
 **Code**
@@ -53,11 +53,11 @@ See public/chorus/test.html for an full documentation.
 port=3000
 
 # client: Serve client files via express (OPTIONAL)
-client=demo/midi/public
+client=public/
 
-# customs: Serve custom server files (OPTIONAL)
-customs=demo/midi/midi.js
+# customs: Serve additional custom server files (OPTIONAL)
+customs=server/demo/midi/midi.js
 
-# debug: Serve all events if true, otherwise serve only errors (OPTIONAL, DEFAULT: false)
+# debug: Show all console messages (OPTIONAL, DEFAULT: false)
 debug=true
 ```
