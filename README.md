@@ -9,7 +9,7 @@
 - Multi-device data coordination for any JavaScript-based data visualization or tool, easily integrated into code
 - Server facilitating numerous clients and channels, separating data stores securely with low latency
 - Menu to allow users to easily create or follow data rooms and detach if desired
-- Built-in Chromecast integration, allowing any monitor or projector to become an synced external display
+- Built-in Chromecast integration, allowing any monitor or projector to become a synced external display
 - Custom backend to add additional socket events or server-sided data processing
 
 # Demos
