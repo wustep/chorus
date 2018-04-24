@@ -43,11 +43,11 @@ To implement on your own JS-based tool:
 <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
 <script src="chorus.js"></script>
 ```
-3. Create new Chorus object (e.g. "chorus")
-4. Implement chorus.render(data, fresh) that renders data accordingly
-5. Add chorus.update(data, clone) whenever data is updated
+3. Create ```new Chorus``` object
+4. Implement function ```chorus.render(data, fresh)``` that renders data accordingly
+5. Add function call ```chorus.update(data)``` whenever data is updated
 
-See ```public/chorus/test.html``` for an full documentation.
+See [```public/chorus/test.html```](https://github.com/wustep/chorus/blob/chorus/public/chorus/test.html) for a full demonstration. 
 
 # ENV
 ```
