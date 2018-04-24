@@ -19,13 +19,20 @@
 
 # Usage
 **Installation**
+
+To install Chorus's server and associated demos:
+
 1. Clone Git repository.
 2. Install NPM if needed, then ```npm install``` in root
 3. Create ```.env``` file in root with desired specifications (see below).
-4. Run your own web server or serve your viz files statically through the ```.env``` file settings
+4. Run your own web server or serve your tool's files statically through the ```.env``` file settings
 5. Delete /demo/ folders if desired
+6. Run ```npm start```
 
 **Code**
+
+To implement on your own JS-based tool:
+
 1. Include ```socket.io``` and optionally ```cast_sender.js``` locally or externally
 2. Include ```chorus.js``` and ```chorus.css``` in the ```/public/chorus/``` folder.
 ```
