@@ -11,11 +11,9 @@
 - Custom backend to add additional socket events or server-sided data processing
 
 # Demos
-**TBDBITL**: Pie chart + dot chart + arrow buttons coordinating OSU Marching Band row instrumentation breakdown
-
 **MIDI**: Socket.io piano keyboard + vizualization of notes played
 
-**Crossfilter**: Flight data
+**Crossfilter**: Crossfilter.js Flight data dashboard
 
 **Leaflet**: Leaflet.js map and draw tools
 
