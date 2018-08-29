@@ -5,6 +5,8 @@
 
 [See the poster here!](https://github.com/wustep/chorus/blob/chorus/poster.pdf) (Presented at the 2018 Denman Undergraduate Research Forum)
 
+[Summer update presentation with some demos](https://docs.google.com/presentation/d/1ThKu_yxz_ir6lvLDzYl4P6-8zOGuQiHz5UdFJwMCdV0/)
+
 # Features
 - Multi-device data coordination for any JavaScript-based data visualization or tool, easily integrated into code
 - Server facilitating numerous clients and channels, separating data stores securely with low latency
