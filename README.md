@@ -7,6 +7,8 @@
 
 [Summer update presentation with some demos](https://docs.google.com/presentation/d/1ThKu_yxz_ir6lvLDzYl4P6-8zOGuQiHz5UdFJwMCdV0/)
 
+This project was developed under the advising and support of Dr. Arnab Nandi's [Interactive Data Systems Group](https://interact.osu.edu/) at The Ohio State University. Thanks [Arnab](https://arnab.org/)!
+
 # Features
 - Multi-device data coordination for any JavaScript-based data visualization or tool, easily integrated into code
 - Server facilitating numerous clients and channels, separating data stores securely with low latency
