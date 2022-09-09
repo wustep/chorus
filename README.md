@@ -3,7 +3,8 @@
 
 **Goal**: Minimize the time taken to turn any regular browser-based data viz to be a collaborative experience
 
-[See the poster here!](https://github.com/wustep/chorus/blob/chorus/poster.pdf) (Presented at the 2018 Denman Undergraduate Research Forum)
+[See the poster here!](https://github.com/wustep/chorus/blob/chorus/poster.pdf) (Presented at the 2018 OSU Denman Undergraduate Research Forum) or below
+<img width="1440" alt="Screen Shot 2022-09-09 at 12 08 35 PM" src="https://user-images.githubusercontent.com/6259534/189394177-04ea6e2c-6fa0-4484-a59d-206b0538d426.png">
 
 [Summer update presentation with some demos](https://docs.google.com/presentation/d/1ThKu_yxz_ir6lvLDzYl4P6-8zOGuQiHz5UdFJwMCdV0/)
 
